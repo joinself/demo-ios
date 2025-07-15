@@ -1,0 +1,26 @@
+default_platform :ios
+
+platform :ios do
+
+  app_store_connect_api_key(
+    key_id: "6799V93787",
+    issuer_id: "aaa4f5f7-4cac-4ceb-b1cb-1576e7e8519f",
+    key_filepath: ENV["FASTLANE_KEY_FILEPATH"],
+    duration: 1200,
+    in_house: false
+  )
+
+  lane :build do
+    match(
+      type: "appstore",
+      readonly: false
+    )
+    increment_build_number(xcodeproj: "Example.xcodeproj")
+    build_app(scheme: "ExampleApp")
+  end
+
+  lane :publish do
+    upload_to_testflight(skip_waiting_for_build_processing: true)
+  end
+
+end
