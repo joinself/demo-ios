@@ -7,35 +7,35 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6322DD782E276FC100B2094C /* SelfUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6322DCFD2E276F5B00B2094C /* SelfUI.framework */; };
+		6322DD792E276FC100B2094C /* SelfUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6322DCFD2E276F5B00B2094C /* SelfUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		6328245B2DFC2C4E00756B51 /* ui_components.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 632824552DFC2C4E00756B51 /* ui_components.framework */; };
 		6328245C2DFC2C4E00756B51 /* ui_components.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 632824552DFC2C4E00756B51 /* ui_components.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		634BAC352DCC5A840012429D /* self_ios_sdk in Frameworks */ = {isa = PBXBuildFile; productRef = 634BAC342DCC5A840012429D /* self_ios_sdk */; };
 		634BAC382DCC5BD10012429D /* OpenSSL in Frameworks */ = {isa = PBXBuildFile; productRef = 634BAC372DCC5BD10012429D /* OpenSSL */; };
-		634BAC4B2DCC62380012429D /* SelfUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 634BAC432DCC61B80012429D /* SelfUI.framework */; };
-		634BAC4C2DCC62380012429D /* SelfUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 634BAC432DCC61B80012429D /* SelfUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		6322DCFC2E276F5B00B2094C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6322DCF52E276F5B00B2094C /* SelfUI.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 63C451642BF30EAE00AD5BC5;
+			remoteInfo = SelfUI;
+		};
+		6322DD762E276FB500B2094C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6322DCF52E276F5B00B2094C /* SelfUI.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 63C451632BF30EAE00AD5BC5;
+			remoteInfo = SelfUI;
+		};
 		632824592DFC2C4E00756B51 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 634BAC1A2DCC53E90012429D /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 632824542DFC2C4E00756B51;
 			remoteInfo = "ui-components";
-		};
-		634BAC422DCC61B80012429D /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 634BAC392DCC61B80012429D /* SelfUI.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 63C451642BF30EAE00AD5BC5;
-			remoteInfo = SelfUI;
-		};
-		634BAC4E2DCC62440012429D /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 634BAC392DCC61B80012429D /* SelfUI.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 63C451632BF30EAE00AD5BC5;
-			remoteInfo = SelfUI;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -46,8 +46,8 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				6322DD792E276FC100B2094C /* SelfUI.framework in Embed Frameworks */,
 				6328245C2DFC2C4E00756B51 /* ui_components.framework in Embed Frameworks */,
-				634BAC4C2DCC62380012429D /* SelfUI.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -55,9 +55,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		6322DCF52E276F5B00B2094C /* SelfUI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SelfUI.xcodeproj; path = "joinself-self-mobile-ios-ui/SelfUI/SelfUI.xcodeproj"; sourceTree = "<group>"; };
 		632824552DFC2C4E00756B51 /* ui_components.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ui_components.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		634BAC222DCC53E90012429D /* ExampleApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ExampleApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		634BAC392DCC61B80012429D /* SelfUI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SelfUI.xcodeproj; path = "../joinself-self-mobile-ios-ui/SelfUI/SelfUI.xcodeproj"; sourceTree = SOURCE_ROOT; };
 		638FD74B2DE9C0A600CF59CC /* ExampleAppDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ExampleAppDebug.entitlements; sourceTree = "<group>"; };
 		639A7A0B2E0D42B100293D5B /* ExampleAppRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ExampleAppRelease.entitlements; sourceTree = "<group>"; };
 		63C124A62DEEF9990074DD42 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -101,8 +101,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6322DD782E276FC100B2094C /* SelfUI.framework in Frameworks */,
 				634BAC352DCC5A840012429D /* self_ios_sdk in Frameworks */,
-				634BAC4B2DCC62380012429D /* SelfUI.framework in Frameworks */,
 				6328245B2DFC2C4E00756B51 /* ui_components.framework in Frameworks */,
 				634BAC382DCC5BD10012429D /* OpenSSL in Frameworks */,
 			);
@@ -111,13 +111,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6322DCF62E276F5B00B2094C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				6322DCFD2E276F5B00B2094C /* SelfUI.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		634BAC192DCC53E90012429D = {
 			isa = PBXGroup;
 			children = (
+				6322DCF52E276F5B00B2094C /* SelfUI.xcodeproj */,
 				639A7A0B2E0D42B100293D5B /* ExampleAppRelease.entitlements */,
 				63C124A62DEEF9990074DD42 /* Info.plist */,
 				638FD74B2DE9C0A600CF59CC /* ExampleAppDebug.entitlements */,
-				634BAC392DCC61B80012429D /* SelfUI.xcodeproj */,
 				634BAC242DCC53E90012429D /* Example */,
 				632824562DFC2C4E00756B51 /* ui-components */,
 				634BAC4A2DCC62380012429D /* Frameworks */,
@@ -130,14 +138,6 @@
 			children = (
 				634BAC222DCC53E90012429D /* ExampleApp.app */,
 				632824552DFC2C4E00756B51 /* ui_components.framework */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		634BAC3C2DCC61B80012429D /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				634BAC432DCC61B80012429D /* SelfUI.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -197,7 +197,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				634BAC4F2DCC62440012429D /* PBXTargetDependency */,
+				6322DD772E276FB500B2094C /* PBXTargetDependency */,
 				6328245A2DFC2C4E00756B51 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
@@ -249,8 +249,8 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 634BAC3C2DCC61B80012429D /* Products */;
-					ProjectRef = 634BAC392DCC61B80012429D /* SelfUI.xcodeproj */;
+					ProductGroup = 6322DCF62E276F5B00B2094C /* Products */;
+					ProjectRef = 6322DCF52E276F5B00B2094C /* SelfUI.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -262,11 +262,11 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		634BAC432DCC61B80012429D /* SelfUI.framework */ = {
+		6322DCFD2E276F5B00B2094C /* SelfUI.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
 			path = SelfUI.framework;
-			remoteRef = 634BAC422DCC61B80012429D /* PBXContainerItemProxy */;
+			remoteRef = 6322DCFC2E276F5B00B2094C /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -306,15 +306,15 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		6322DD772E276FB500B2094C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = SelfUI;
+			targetProxy = 6322DD762E276FB500B2094C /* PBXContainerItemProxy */;
+		};
 		6328245A2DFC2C4E00756B51 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 632824542DFC2C4E00756B51 /* ui-components */;
 			targetProxy = 632824592DFC2C4E00756B51 /* PBXContainerItemProxy */;
-		};
-		634BAC4F2DCC62440012429D /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = SelfUI;
-			targetProxy = 634BAC4E2DCC62440012429D /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -522,7 +522,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = ExampleAppDebug.entitlements;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development: Senagbe Gbeckor-Kove (7Z2UJUGM27)";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 14;
 				DEVELOPMENT_ASSET_PATHS = "\"Example/Preview Content\"";
