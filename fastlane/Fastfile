@@ -20,7 +20,7 @@ platform :ios do
 
   lane :publish do
     upload_to_testflight(
-      ipa: "../build-artifacts/demo-ios/ExampleApp.ipa",
+      ipa: "build-artifacts/demo-ios/ExampleApp.ipa",
       skip_waiting_for_build_processing: true
     )
   end
