@@ -4,3 +4,6 @@
 [submodule "golang/examples"]
 	path = golang/examples
 	url = https://github.com/joinself/self-go-sdk.git
+[submodule "joinself-self-mobile-ios-ui"]
+	path = joinself-self-mobile-ios-ui
+	url = git@github.com:joinself/joinself-self-mobile-ios-ui.git
