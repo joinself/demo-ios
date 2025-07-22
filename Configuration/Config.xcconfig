@@ -1,0 +1,14 @@
+//
+//  Config.xcconfig
+//  ExampleApp
+//
+//  Created by Long Pham on 22/7/25.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+// App Settings
+APP_NAME = JoinSelf Demo
+APP_BUNDLE_ID = com.joinself.app.demo
+APP_ICON = AppIcon

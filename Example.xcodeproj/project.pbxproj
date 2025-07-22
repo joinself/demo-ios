@@ -58,6 +58,7 @@
 		6322DCF52E276F5B00B2094C /* SelfUI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SelfUI.xcodeproj; path = "joinself-self-mobile-ios-ui/SelfUI/SelfUI.xcodeproj"; sourceTree = "<group>"; };
 		632824552DFC2C4E00756B51 /* ui_components.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ui_components.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		634BAC222DCC53E90012429D /* ExampleApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ExampleApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		636DDF492E2FD51400CA0651 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 		638FD74B2DE9C0A600CF59CC /* ExampleAppDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ExampleAppDebug.entitlements; sourceTree = "<group>"; };
 		639A7A0B2E0D42B100293D5B /* ExampleAppRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ExampleAppRelease.entitlements; sourceTree = "<group>"; };
 		63C124A62DEEF9990074DD42 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -122,6 +123,7 @@
 		634BAC192DCC53E90012429D = {
 			isa = PBXGroup;
 			children = (
+				636DDF482E2FD4F100CA0651 /* Configuration */,
 				6322DCF52E276F5B00B2094C /* SelfUI.xcodeproj */,
 				639A7A0B2E0D42B100293D5B /* ExampleAppRelease.entitlements */,
 				63C124A62DEEF9990074DD42 /* Info.plist */,
@@ -147,6 +149,14 @@
 			children = (
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		636DDF482E2FD4F100CA0651 /* Configuration */ = {
+			isa = PBXGroup;
+			children = (
+				636DDF492E2FD51400CA0651 /* Config.xcconfig */,
+			);
+			path = Configuration;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -518,6 +528,7 @@
 		};
 		634BAC312DCC53EB0012429D /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 636DDF492E2FD51400CA0651 /* Config.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -562,6 +573,7 @@
 		};
 		634BAC322DCC53EB0012429D /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 636DDF492E2FD51400CA0651 /* Config.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -642,8 +654,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/joinself/self-embedded-ios.git";
 			requirement = {
-				kind = upToNextMinorVersion;
-				minimumVersion = 0.124.0;
+				branch = main;
+				kind = branch;
 			};
 		};
 		634BAC362DCC5BD10012429D /* XCRemoteSwiftPackageReference "OpenSSL" */ = {
