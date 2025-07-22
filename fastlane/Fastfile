@@ -15,7 +15,7 @@ platform :ios do
       type: "appstore",
       readonly: false
     )
-    build_app(scheme: "ExampleApp")
+    build_app(scheme: "JoinSelf Demo")
   end
 
   lane :publish do
