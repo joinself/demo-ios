@@ -17,11 +17,11 @@
 	<key>CFBundleName</key>
 	<string>$(PRODUCT_NAME)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Self Demo</string>
+	<string>JoinSelf Demo</string>
 	<key>NFCReaderUsageDescription</key>
 	<string>This app uses NFC to scan passports</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Turning on the camera allows us to ensure it&apos;s only you using Self Demo</string>
+	<string>Turning on the camera allows us to ensure it&apos;s only you using JoinSelf Demo</string>
 	<key>UILaunchScreen</key>
 	<dict>
 		<key>UIImageName</key>
