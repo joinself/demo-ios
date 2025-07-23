@@ -661,7 +661,7 @@
 			repositoryURL = "https://github.com/joinself/self-embedded-ios.git";
 			requirement = {
 				kind = exactVersion;
-				version = 1.127.0;
+				version = 0.127.0;
 			};
 		};
 		634BAC362DCC5BD10012429D /* XCRemoteSwiftPackageReference "OpenSSL" */ = {
