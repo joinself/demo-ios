@@ -19,7 +19,7 @@
 	<key>provisioningProfiles</key>
 	<dict>
 		<key>com.joinself.app.demo</key>
-		<string>ExampleApp_Appstore1</string>
+		<string>match AppStore com.joinself.app.demo</string>
 	</dict>
 </dict>
 </plist>

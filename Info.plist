@@ -21,7 +21,7 @@
 	<key>NFCReaderUsageDescription</key>
 	<string>This app uses NFC to scan passports</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Turning on the camera allows us to ensure it&apos;s only you using $(APP_NAME)</string>
+	<string>Turning on the camera allows us to ensure it's only you using $(APP_NAME)</string>
 	<key>UILaunchScreen</key>
 	<dict>
 		<key>UIImageName</key>
