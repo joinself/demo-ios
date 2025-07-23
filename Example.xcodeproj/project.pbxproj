@@ -530,6 +530,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 636DDF492E2FD51400CA0651 /* Config.xcconfig */;
 			buildSettings = {
+				APP_BUNDLE_ID = "${APP_BUNDLE_ID}";
+				APP_ICON = "${APP_ICON}";
+				APP_NAME = "${APP_NAME}";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = NO;
@@ -575,6 +578,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 636DDF492E2FD51400CA0651 /* Config.xcconfig */;
 			buildSettings = {
+				APP_BUNDLE_ID = "${APP_BUNDLE_ID}";
+				APP_ICON = "${APP_ICON}";
+				APP_NAME = "${APP_NAME}";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = NO;
