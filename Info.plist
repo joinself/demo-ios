@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDisplayName</key>
-	<string>JoinSelf Demo</string>
+	<string>$(APP_NAME)</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -21,7 +21,7 @@
 	<key>NFCReaderUsageDescription</key>
 	<string>This app uses NFC to scan passports</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Turning on the camera allows us to ensure it's only you using JoinSelf Demo</string>
+	<string>Turning on the camera allows us to ensure it's only you using $(APP_NAME)</string>
 	<key>UILaunchScreen</key>
 	<dict>
 		<key>UIImageName</key>
