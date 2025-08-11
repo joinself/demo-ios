@@ -70,7 +70,7 @@ struct MainContentView: View {
                 SelfSDK.verifyEmail(account: viewModel.account, transitionAsModal: true) { success in
                     print("Verify email finished: \(success)")
                     if success {
-                        self.viewModel.reloadCredentialItems()
+                        //self.viewModel.reloadCredentialItems()
                     }
                 }
             } label: {
@@ -115,7 +115,7 @@ struct MainContentView: View {
             List {
                 // display credentials here!
                 ForEach(viewModel.credentialItems) { credentialItem in
-                    if let value = credentialItem.claims.first?.value() {
+                    if let value = credentialItem.claims.first {
                         Text(value)
                             .foregroundStyle(Color.white)
                     }
@@ -175,14 +175,14 @@ struct MainContentView: View {
                 }
                 
                 // 1. Do liveness to get liveness's selfie image
-                SelfSDK.showLiveness(account: viewModel.account, showIntroduction: true, autoDismiss: true, isVerificationRequired: false, onResult: { selfieImageData, credentials, error in
-                    print("showLivenessCheck credentials: \(credentials)")
-                    isRestoring = true
-                    viewModel.restore(selfieData: selfieImageData, backupFile: backupFile) { success in
-                        print("Restore account finished: \(success)")
-                        isRestoring = false
-                    }
-                })
+//                SelfSDK.showLiveness(account: viewModel.account, showIntroduction: true, autoDismiss: true, isVerificationRequired: false, onResult: { selfieImageData, credentials, error in
+//                    print("showLivenessCheck credentials: \(credentials)")
+//                    isRestoring = true
+//                    viewModel.restore(selfieData: selfieImageData, backupFile: backupFile) { success in
+//                        print("Restore account finished: \(success)")
+//                        isRestoring = false
+//                    }
+//                })
             }
         })
         .sheet(isPresented: $showDocumentPicker) {

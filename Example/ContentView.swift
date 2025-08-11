@@ -95,444 +95,444 @@ struct ContentView: View {
             }
             
             Group {
-                switch currentScreen {
-                case .initialization:
-                    InitializeSDKScreen(isInitialized: $viewModel.isInitialized, onInitializationComplete: {
-                        determineNextScreen()
-                    })
-                case .registrationIntro:
-                    RegistrationIntroScreen(isProcessing: $isRegistering) {
-                        // start registration
-                        self.isRegistering = true
-                        viewModel.registerAccount { success in
-                            viewModel.accountRegistered = success
-                            self.isRegistering = success
-                            withAnimation(.easeInOut(duration: 0.5)) {
-                                currentScreen = .serverConnectionSelection
-                            }
-                        }
-                    } onRestore: {
-                        withAnimation(.easeInOut(duration: 0.5)) {
-                            currentScreen = .restoreStart
-                        }
-                    }
-                    
-                case .serverConnectionSelection:
-                    ServerConnectionSelectionScreen { connectionActionType in
-                        if connectionActionType == .manuallyConnect {
-                            self.setCurrentAppScreen(screen: .serverConnection)
-                        } else if connectionActionType == .scanQrCodeConnect {
-                            // MARK: QRCode Connection
-                            self.showQRScanner = true
-                        }
-                    } onBack: {
-                        
-                    }
-                    .fullScreenCover(isPresented: $showQRScanner, onDismiss: {
-                        
-                    }, content: {
-                        QRReaderView(isCodeValid: $isCodeValid, onCode: { code in
-                            print("QRCode: \(code)")
-                        }) { codeData in
-                            print("QRCode: \(codeData)")
-                            viewModel.handleAuthData(data: codeData) { error in
-                                if error == nil {
-                                    showQRScanner = false
-                                    self.setCurrentAppScreen(screen: .actionSelection)
-                                }
-                            }
-                        }
-                    })
-
-                    
-                case .serverConnection:
-                    ServerConnectionScreen(
-                        onConnectToServer: { serverAddress in
-                            withAnimation(.easeInOut(duration: 0.5)) {
-                                currentScreen = .serverConnectionProcessing(serverAddress: serverAddress)
-                            }
-                        }
-                    )
-                case .serverConnectionProcessing(let serverAddress):
-                    ServerConnectionProcessingScreen(
-                        isConnecting: $viewModel.isConnecting,
-                        connectionError: $viewModel.connectionError,
-                        hasTimedOut: $viewModel.hasTimedOut,
-                        serverAddress: serverAddress,
-                        onConnectionStart: { serverAddress in
-                            print("onConnectionStart: \(serverAddress)")
-                            Task {
-                                await viewModel.connectToSelfServer(serverAddress: serverAddress) { success in
-                                    // connection completion
-                                    if success {
-                                        // Update server connection state and navigate to action selection
-                                        viewModel.saveServerConnected(isConnected: true)
-                                        viewModel.saveServerAddress(serverAddress: serverAddress)
-                                        // Show success toast since this is first visit after connection
-                                        showConnectionSuccessToast = true
-                                        self.setCurrentAppScreen(screen: .actionSelection)
-                                    } else {
-                                        print("Server connection error!")
-                                    }
-                                }
-                            }
-                            
-                        },
-                        onConnectionComplete: {
-                            // Update server connection state and navigate to action selection
-                            // Show success toast since this is first visit after connection
-                            showConnectionSuccessToast = true
-                            self.setCurrentAppScreen(screen: .actionSelection)
-                        },
-                        onGoBack: {
-                            // Reset connection state and go back to server connection screen
-                            self.viewModel.resetUserDefaults()
-                            self.setCurrentAppScreen(screen: .serverConnectionSelection)
-                        }
-                    )
-                case .actionSelection:
-                    ActionSelectionScreen(
-                        showConnectionSuccess: showConnectionSuccessToast,
-                        onActionSelected: { actionType in
-                            print("🎯 ContentView: User selected action: \(actionType)")
-                            // Reset the connection success toast flag after first visit
-                            showConnectionSuccessToast = false
-                            handleActionSelection(actionType)
-                        }, onBack: {
-                            self.viewModel.resetUserDefaults()
-                            self.setCurrentAppScreen(screen: .serverConnectionSelection)
-                        }
-                    )
-                    
-                case .verifyCredential:
-                    VerifyCredentialSelectionScreen { credentialActionType in
-                        if credentialActionType == .emailAddress {
-                            // show verify email flow
-                            withAnimation(.easeInOut(duration: 0.5)) {
-                                currentScreen = .verifyEmailStart
-                            }
-                        } else if credentialActionType == .identityDocument {
-                            // show verify document flow
-                            withAnimation(.easeInOut(duration: 0.5)) {
-                                currentScreen = .verifyDocumentStart
-                            }
-                        } else if credentialActionType == .customCredential {
-                            withAnimation(.easeInOut(duration: 0.5)) {
-                                currentScreen = .getCustomCredentialStart
-                            }
-                        }
-                        
-                    } onBack: {
-                        withAnimation(.easeInOut(duration: 0.5)) {
-                            currentScreen = .actionSelection
-                        }
-                    }
-                    
-                case .verifyEmailStart:
-                    VerifyEmailStartScreen {
-                        showVerifyEmail = true
-                    } onBack: {
-                        withAnimation(.easeInOut(duration: 0.5)) {
-                            currentScreen = .actionSelection
-                        }
-                    }
-                    .fullScreenCover(isPresented: $showVerifyEmail, onDismiss: {
-                        
-                    }, content: {
-                        EmailFlow(account: viewModel.account, autoDismiss: false, onResult: { success in
-                            print("Verify email finished = \(success)")
-                            self.showVerifyEmail = false
-                            self.setCurrentAppScreen(screen: .verifyEmailResult(success: success))
-                        })
-                    })
-                    
-                case .verifyEmailResult (let success):
-                    VerifyEmailResultScreen(success: success) {
-                        setCurrentAppScreen(screen: .actionSelection)
-                    } onBack: {
-                        setCurrentAppScreen(screen: .actionSelection)
-                    }
-
-                case .verifyDocumentStart:
-                    VerifyDocumentStartScreen {
-                        showVerifyDocument = true
-                    } onBack: {
-                        withAnimation(.easeInOut(duration: 0.5)) {
-                            currentScreen = .actionSelection
-                        }
-                    }
-                    .fullScreenCover(isPresented: $showVerifyDocument, onDismiss: {
-                        // dismiss view
-                    }, content: {
-                        // MARK: - Verify Documents
-                        DocumentFlow(account: viewModel.account, devMode: true, autoCaptureImage: false, onResult:  { success in
-                            print("Verify document finished: \(success)")
-                            showVerifyDocument = false
-                            setCurrentAppScreen(screen: .verifyDocumentResult(success: success))
-                        })
-                    })
-                    
-                case .verifyDocumentResult(let success):
-                    VerifyDocumentResultScreen(success: success) {
-                        withAnimation(.easeInOut(duration: 0.5)) {
-                            currentScreen = .actionSelection
-                        }
-                    } onBack: {
-                        withAnimation(.easeInOut(duration: 0.5)) {
-                            currentScreen = .actionSelection
-                        }
-                    }
-
-                case .getCustomCredentialStart:
-                    VerifyCustomCredentialsStartScreen {
-                        self.sendCustomCredentialRequest()
-                    } onBack: {
-                        withAnimation(.easeInOut(duration: 0.5)) {
-                            currentScreen = .actionSelection
-                        }
-                    }
-
-                case .getCustomCredentialResult(let success):
-                    VerifyCustomCredentialsResultScreen(success: success) {
-                        withAnimation(.easeInOut(duration: 0.5)) {
-                            currentScreen = .actionSelection
-                        }
-                    } onBack: {
-                        withAnimation(.easeInOut(duration: 0.5)) {
-                            currentScreen = .actionSelection
-                        }
-                    }
-
-                    
-                case .shareCredential:
-                    ProvideCredentialSelectionScreen { credentialActionType in
-                        if credentialActionType == .emailAddress {
-                            self.sendEmailCredentialRequest { success in
-                                if success {
-                                    self.setCurrentAppScreen(screen: .shareEmailStart)
-                                }
-                            }
-                        } else if credentialActionType == .identityDocument {
-                            self.sendIDNumberCredentialRequest()
-                        } else if credentialActionType == .customCredential {
-                            self.requestCredentialCustomRequest()
-                        }
-                    } onBack: {
-                        withAnimation(.easeInOut(duration: 0.5)) {
-                            currentScreen = .actionSelection
-                        }
-                    }
-                case .shareEmailStart:
-                    ShareEmailCredentialStartScreen {
-                        viewModel.responseToCredentialRequest(credentialRequest: nil, responseStatus: .accepted) { messageId, error in
-                            let success = error == nil
-                            self.setCurrentAppScreen(screen: .shareEmailResult(success: success))
-                        }
-                    } onCancel: {
-                        viewModel.responseToCredentialRequest(credentialRequest: nil, responseStatus: .rejected) { messageId, error in
-                            let success = error == nil
-                            self.setCurrentAppScreen(screen: .actionSelection)
-                            self.showToastMessage("Share credential rejected!")
-                        }
-                    } onBack: {
-                        self.setCurrentAppScreen(screen: .actionSelection)
-                    }
-
-                case .shareEmailResult(let success):
-                    ShareEmailCredentialResultScreen(success: success) {
-                        withAnimation(.easeInOut(duration: 0.5)) {
-                            currentScreen = .actionSelection
-                        }
-                    }
-                
-                case .shareDocumentStart:
-                    ShareDocumentCredentialStartScreen {
-                        viewModel.responseToCredentialRequest(credentialRequest: currentCredentialRequest, responseStatus: .accepted) { messageId, error in
-
-                            let success = error == nil
-                            setCurrentAppScreen(screen: .shareDocumentResult(success: success))
-                        }
-                    } onDeny: {
-                        viewModel.responseToCredentialRequest(credentialRequest: currentCredentialRequest, responseStatus: .rejected) { messageId, error in
-                            self.setCurrentAppScreen(screen: .actionSelection)
-                            self.showToastMessage("Share document rejected!")
-                        }
-                    } onBack: {
-                        setCurrentAppScreen(screen: .actionSelection)
-                    }
-
-                    
-                case .shareDocumentResult(let success):
-                    ShareDocumentCredentialResultScreen(success: success) {
-                        setCurrentAppScreen(screen: .actionSelection)
-                    }
-                    
-                case .shareCredentialCustomStart:
-                    ShareCredentialStartScreen {
-                        viewModel.responseToCredentialRequest(credentialRequest: currentCredentialRequest, responseStatus: .accepted) { messageId, error in
-                            if error == nil {
-                                withAnimation(.easeInOut(duration: 0.5)) {
-                                    currentScreen = .shareCredentialCustomResult(success: true)
-                                }
-                            } else {
-                                withAnimation(.easeInOut(duration: 0.5)) {
-                                    currentScreen = .shareCredentialCustomResult(success: false)
-                                }
-                            }
-                        }
-                    } onDeny: {
-                        viewModel.responseToCredentialRequest(credentialRequest: currentCredentialRequest, responseStatus: .rejected)
-                    } onBack: {
-                        withAnimation(.easeInOut(duration: 0.5)) {
-                            currentScreen = .actionSelection
-                        }
-                    }
-
-                    
-                case .shareCredentialCustomResult(let success):
-                    ShareEmailCredentialResultScreen(success: success) {
-                        withAnimation(.easeInOut(duration: 0.5)) {
-                            currentScreen = .actionSelection
-                        }
-                    }
-                    
-                case .authStart:
-                    AuthStartScreen(
-                        onStartAuthentication: {
-                            startAuthenticationLivenessCheck()
-                        }, onRejectAuthentication: {
-                            // reject authentication
-                            viewModel.responseToCredentialRequest(credentialRequest: nil, responseStatus: .rejected) { messageId, error in
-                                if error == nil {
-                                    self.setCurrentAppScreen(screen: .actionSelection)
-                                    showToastMessage("Authentication rejected!")
-                                }
-                            }
-                        }
-                    )
-                case .authResult(let success):
-                    AuthResultScreen(success: success,
-                        onContinue: {
-                            // Return to action selection (don't show connection success toast)
-                            showConnectionSuccessToast = false
-                            withAnimation(.easeInOut(duration: 0.5)) {
-                                currentScreen = .actionSelection
-                            }
-                        }
-                    )
-                case .docSignStart:
-                    DocSignStartScreen(
-                        onSignDocument: {
-                            viewModel.respondToVerificationRequest(verificationRequest: nil, status: .accepted, completion: { messageId, error in
-                                if error == nil {
-                                    self.setCurrentAppScreen(screen: .docSignResult(success: true))
-                                } else {
-                                    self.setCurrentAppScreen(screen: .docSignResult(success: false))
-                                }
-                            })
-                        },
-                        onRejectDocument: {
-                            viewModel.respondToVerificationRequest(verificationRequest: nil, status: .rejected, completion: { messageId, error in
-                                self.setCurrentAppScreen(screen: .actionSelection)
-                                self.showToastMessage("Document signing rejected!")
-                            })
-                        }
-                    )
-                case .docSignResult(let success):
-                    DocSignResultScreen(
-                        success: success,
-                        onContinue: {
-                            // Return to action selection (don't show connection success toast)
-                            showConnectionSuccessToast = false
-                            setCurrentAppScreen(screen: .actionSelection)
-                        }
-                    )
-                    
-                    // MARK: Backup & Restore
-                case .backupStart:
-                    BackupAccountStartScreen(isProcessing: $isBackingUp) {
-                        self.isBackingUp = true
-                        viewModel.backup { backupFile in
-                            // open share extension to save file
-                            if let url = backupFile {
-                                fileToShareURLs = [url]
-                            }
-                            self.isBackingUp = false
-                            
-                            withAnimation(.easeInOut(duration: 0.5)) {
-                                currentScreen = .backupResult(success: backupFile != nil)
-                            }
-                        }
-                    } onBack: {
-                        withAnimation(.easeInOut(duration: 0.5)) {
-                            currentScreen = .actionSelection
-                        }
-                    }
-                
-                case .backupResult(let success):
-                    BackupAccountResultScreen(success: success) {
-                        // share backup file
-                        showShareSheet = true
-                    } onBack: {
-                        withAnimation(.easeInOut(duration: 0.5)) {
-                            currentScreen = .actionSelection
-                        }
-                    }
-                    .sheet(isPresented: $showShareSheet) {
-                        ShareSheet(items: fileToShareURLs) {
-                            self.showShareSheet = false
-                            withAnimation(.easeInOut(duration: 0.5)) {
-                                currentScreen = .actionSelection
-                            }
-                        }
-                    }
-                    
-                case .restoreStart:
-                    RestoreAccountStartScreen(isProcessing: $isRestoring) {
-                        showDocumentPicker = true
-                    } onBack: {
-                        withAnimation(.easeInOut(duration: 0.5)) {
-                            currentScreen = .registrationIntro
-                        }
-                    }
-                    .onChange(of: self.selectedFileURLs, perform: { newValue in
-                        print("Files change: \(newValue)")
-                        if let url = newValue.first, url.pathExtension == "self_backup" {
-                            // handle restore account
-                            if url.startAccessingSecurityScopedResource() {
-                                print("startAccessingSecurityScopedResource")
-                            }
-                            
-                            // 1. Do liveness to get liveness's selfie image
-                            SelfSDK.showLiveness(account: viewModel.account, showIntroduction: true, autoDismiss: true, isVerificationRequired: false, onResult: { selfieImageData, credentials, error in
-                                print("showLivenessCheck credentials: \(credentials)")
-                                self.isRestoring = true
-                                viewModel.restore(selfieData: selfieImageData, backupFile: url) { success in
-                                    print("Restore account finished: \(success)")
-                                    self.isRestoring = false
-                                    withAnimation(.easeInOut(duration: 0.5)) {
-                                        currentScreen = .restoreResult(success: success)
-                                    }
-                                }
-                            })
-                        }
-                    })
-                    .sheet(isPresented: $showDocumentPicker) {
-                        DocumentPicker(selectedFileName: $selectedFileName, selectedFileURLs: $selectedFileURLs)
-                    }
-
-                
-                case .restoreResult(let success):
-                    RestoreAccountResultScreen(success: success) {
-                        withAnimation(.easeInOut(duration: 0.5)) {
-                            currentScreen = .serverConnectionSelection
-                        }
-                    } onBack: {
-                        
-                    }
-
-
-                }
+//                switch currentScreen {
+//                case .initialization:
+//                    InitializeSDKScreen(isInitialized: $viewModel.isInitialized, onInitializationComplete: {
+//                        determineNextScreen()
+//                    })
+//                case .registrationIntro:
+//                    RegistrationIntroScreen(isProcessing: $isRegistering) {
+//                        // start registration
+//                        self.isRegistering = true
+//                        viewModel.registerAccount { success in
+//                            viewModel.accountRegistered = success
+//                            self.isRegistering = success
+//                            withAnimation(.easeInOut(duration: 0.5)) {
+//                                currentScreen = .serverConnectionSelection
+//                            }
+//                        }
+//                    } onRestore: {
+//                        withAnimation(.easeInOut(duration: 0.5)) {
+//                            currentScreen = .restoreStart
+//                        }
+//                    }
+//                    
+//                case .serverConnectionSelection:
+//                    ServerConnectionSelectionScreen { connectionActionType in
+//                        if connectionActionType == .manuallyConnect {
+//                            self.setCurrentAppScreen(screen: .serverConnection)
+//                        } else if connectionActionType == .scanQrCodeConnect {
+//                            // MARK: QRCode Connection
+//                            self.showQRScanner = true
+//                        }
+//                    } onBack: {
+//                        
+//                    }
+//                    .fullScreenCover(isPresented: $showQRScanner, onDismiss: {
+//                        
+//                    }, content: {
+//                        QRReaderView(isCodeValid: $isCodeValid, onCode: { code in
+//                            print("QRCode: \(code)")
+//                        }) { codeData in
+//                            print("QRCode: \(codeData)")
+//                            viewModel.handleAuthData(data: codeData) { error in
+//                                if error == nil {
+//                                    showQRScanner = false
+//                                    self.setCurrentAppScreen(screen: .actionSelection)
+//                                }
+//                            }
+//                        }
+//                    })
+//
+//                    
+//                case .serverConnection:
+//                    ServerConnectionScreen(
+//                        onConnectToServer: { serverAddress in
+//                            withAnimation(.easeInOut(duration: 0.5)) {
+//                                currentScreen = .serverConnectionProcessing(serverAddress: serverAddress)
+//                            }
+//                        }
+//                    )
+//                case .serverConnectionProcessing(let serverAddress):
+//                    ServerConnectionProcessingScreen(
+//                        isConnecting: $viewModel.isConnecting,
+//                        connectionError: $viewModel.connectionError,
+//                        hasTimedOut: $viewModel.hasTimedOut,
+//                        serverAddress: serverAddress,
+//                        onConnectionStart: { serverAddress in
+//                            print("onConnectionStart: \(serverAddress)")
+//                            Task {
+//                                await viewModel.connectToSelfServer(serverAddress: serverAddress) { success in
+//                                    // connection completion
+//                                    if success {
+//                                        // Update server connection state and navigate to action selection
+//                                        viewModel.saveServerConnected(isConnected: true)
+//                                        viewModel.saveServerAddress(serverAddress: serverAddress)
+//                                        // Show success toast since this is first visit after connection
+//                                        showConnectionSuccessToast = true
+//                                        self.setCurrentAppScreen(screen: .actionSelection)
+//                                    } else {
+//                                        print("Server connection error!")
+//                                    }
+//                                }
+//                            }
+//                            
+//                        },
+//                        onConnectionComplete: {
+//                            // Update server connection state and navigate to action selection
+//                            // Show success toast since this is first visit after connection
+//                            showConnectionSuccessToast = true
+//                            self.setCurrentAppScreen(screen: .actionSelection)
+//                        },
+//                        onGoBack: {
+//                            // Reset connection state and go back to server connection screen
+//                            self.viewModel.resetUserDefaults()
+//                            self.setCurrentAppScreen(screen: .serverConnectionSelection)
+//                        }
+//                    )
+//                case .actionSelection:
+//                    ActionSelectionScreen(
+//                        showConnectionSuccess: showConnectionSuccessToast,
+//                        onActionSelected: { actionType in
+//                            print("🎯 ContentView: User selected action: \(actionType)")
+//                            // Reset the connection success toast flag after first visit
+//                            showConnectionSuccessToast = false
+//                            handleActionSelection(actionType)
+//                        }, onBack: {
+//                            self.viewModel.resetUserDefaults()
+//                            self.setCurrentAppScreen(screen: .serverConnectionSelection)
+//                        }
+//                    )
+//                    
+//                case .verifyCredential:
+//                    VerifyCredentialSelectionScreen { credentialActionType in
+//                        if credentialActionType == .emailAddress {
+//                            // show verify email flow
+//                            withAnimation(.easeInOut(duration: 0.5)) {
+//                                currentScreen = .verifyEmailStart
+//                            }
+//                        } else if credentialActionType == .identityDocument {
+//                            // show verify document flow
+//                            withAnimation(.easeInOut(duration: 0.5)) {
+//                                currentScreen = .verifyDocumentStart
+//                            }
+//                        } else if credentialActionType == .customCredential {
+//                            withAnimation(.easeInOut(duration: 0.5)) {
+//                                currentScreen = .getCustomCredentialStart
+//                            }
+//                        }
+//                        
+//                    } onBack: {
+//                        withAnimation(.easeInOut(duration: 0.5)) {
+//                            currentScreen = .actionSelection
+//                        }
+//                    }
+//                    
+//                case .verifyEmailStart:
+//                    VerifyEmailStartScreen {
+//                        showVerifyEmail = true
+//                    } onBack: {
+//                        withAnimation(.easeInOut(duration: 0.5)) {
+//                            currentScreen = .actionSelection
+//                        }
+//                    }
+//                    .fullScreenCover(isPresented: $showVerifyEmail, onDismiss: {
+//                        
+//                    }, content: {
+//                        EmailFlow(account: viewModel.account, autoDismiss: false, onResult: { success in
+//                            print("Verify email finished = \(success)")
+//                            self.showVerifyEmail = false
+//                            self.setCurrentAppScreen(screen: .verifyEmailResult(success: success))
+//                        })
+//                    })
+//                    
+//                case .verifyEmailResult (let success):
+//                    VerifyEmailResultScreen(success: success) {
+//                        setCurrentAppScreen(screen: .actionSelection)
+//                    } onBack: {
+//                        setCurrentAppScreen(screen: .actionSelection)
+//                    }
+//
+//                case .verifyDocumentStart:
+//                    VerifyDocumentStartScreen {
+//                        showVerifyDocument = true
+//                    } onBack: {
+//                        withAnimation(.easeInOut(duration: 0.5)) {
+//                            currentScreen = .actionSelection
+//                        }
+//                    }
+//                    .fullScreenCover(isPresented: $showVerifyDocument, onDismiss: {
+//                        // dismiss view
+//                    }, content: {
+//                        // MARK: - Verify Documents
+//                        DocumentFlow(account: viewModel.account, devMode: true, autoCaptureImage: false, onResult:  { success in
+//                            print("Verify document finished: \(success)")
+//                            showVerifyDocument = false
+//                            setCurrentAppScreen(screen: .verifyDocumentResult(success: success))
+//                        })
+//                    })
+//                    
+//                case .verifyDocumentResult(let success):
+//                    VerifyDocumentResultScreen(success: success) {
+//                        withAnimation(.easeInOut(duration: 0.5)) {
+//                            currentScreen = .actionSelection
+//                        }
+//                    } onBack: {
+//                        withAnimation(.easeInOut(duration: 0.5)) {
+//                            currentScreen = .actionSelection
+//                        }
+//                    }
+//
+//                case .getCustomCredentialStart:
+//                    VerifyCustomCredentialsStartScreen {
+//                        self.sendCustomCredentialRequest()
+//                    } onBack: {
+//                        withAnimation(.easeInOut(duration: 0.5)) {
+//                            currentScreen = .actionSelection
+//                        }
+//                    }
+//
+//                case .getCustomCredentialResult(let success):
+//                    VerifyCustomCredentialsResultScreen(success: success) {
+//                        withAnimation(.easeInOut(duration: 0.5)) {
+//                            currentScreen = .actionSelection
+//                        }
+//                    } onBack: {
+//                        withAnimation(.easeInOut(duration: 0.5)) {
+//                            currentScreen = .actionSelection
+//                        }
+//                    }
+//
+//                    
+//                case .shareCredential:
+//                    ProvideCredentialSelectionScreen { credentialActionType in
+//                        if credentialActionType == .emailAddress {
+//                            self.sendEmailCredentialRequest { success in
+//                                if success {
+//                                    self.setCurrentAppScreen(screen: .shareEmailStart)
+//                                }
+//                            }
+//                        } else if credentialActionType == .identityDocument {
+//                            self.sendIDNumberCredentialRequest()
+//                        } else if credentialActionType == .customCredential {
+//                            self.requestCredentialCustomRequest()
+//                        }
+//                    } onBack: {
+//                        withAnimation(.easeInOut(duration: 0.5)) {
+//                            currentScreen = .actionSelection
+//                        }
+//                    }
+//                case .shareEmailStart:
+//                    ShareEmailCredentialStartScreen {
+//                        viewModel.responseToCredentialRequest(credentialRequest: nil, responseStatus: .accepted) { messageId, error in
+//                            let success = error == nil
+//                            self.setCurrentAppScreen(screen: .shareEmailResult(success: success))
+//                        }
+//                    } onCancel: {
+//                        viewModel.responseToCredentialRequest(credentialRequest: nil, responseStatus: .rejected) { messageId, error in
+//                            let success = error == nil
+//                            self.setCurrentAppScreen(screen: .actionSelection)
+//                            self.showToastMessage("Share credential rejected!")
+//                        }
+//                    } onBack: {
+//                        self.setCurrentAppScreen(screen: .actionSelection)
+//                    }
+//
+//                case .shareEmailResult(let success):
+//                    ShareEmailCredentialResultScreen(success: success) {
+//                        withAnimation(.easeInOut(duration: 0.5)) {
+//                            currentScreen = .actionSelection
+//                        }
+//                    }
+//                
+//                case .shareDocumentStart:
+//                    ShareDocumentCredentialStartScreen {
+//                        viewModel.responseToCredentialRequest(credentialRequest: currentCredentialRequest, responseStatus: .accepted) { messageId, error in
+//
+//                            let success = error == nil
+//                            setCurrentAppScreen(screen: .shareDocumentResult(success: success))
+//                        }
+//                    } onDeny: {
+//                        viewModel.responseToCredentialRequest(credentialRequest: currentCredentialRequest, responseStatus: .rejected) { messageId, error in
+//                            self.setCurrentAppScreen(screen: .actionSelection)
+//                            self.showToastMessage("Share document rejected!")
+//                        }
+//                    } onBack: {
+//                        setCurrentAppScreen(screen: .actionSelection)
+//                    }
+//
+//                    
+//                case .shareDocumentResult(let success):
+//                    ShareDocumentCredentialResultScreen(success: success) {
+//                        setCurrentAppScreen(screen: .actionSelection)
+//                    }
+//                    
+//                case .shareCredentialCustomStart:
+//                    ShareCredentialStartScreen {
+//                        viewModel.responseToCredentialRequest(credentialRequest: currentCredentialRequest, responseStatus: .accepted) { messageId, error in
+//                            if error == nil {
+//                                withAnimation(.easeInOut(duration: 0.5)) {
+//                                    currentScreen = .shareCredentialCustomResult(success: true)
+//                                }
+//                            } else {
+//                                withAnimation(.easeInOut(duration: 0.5)) {
+//                                    currentScreen = .shareCredentialCustomResult(success: false)
+//                                }
+//                            }
+//                        }
+//                    } onDeny: {
+//                        viewModel.responseToCredentialRequest(credentialRequest: currentCredentialRequest, responseStatus: .rejected)
+//                    } onBack: {
+//                        withAnimation(.easeInOut(duration: 0.5)) {
+//                            currentScreen = .actionSelection
+//                        }
+//                    }
+//
+//                    
+//                case .shareCredentialCustomResult(let success):
+//                    ShareEmailCredentialResultScreen(success: success) {
+//                        withAnimation(.easeInOut(duration: 0.5)) {
+//                            currentScreen = .actionSelection
+//                        }
+//                    }
+//                    
+//                case .authStart:
+//                    AuthStartScreen(
+//                        onStartAuthentication: {
+//                            startAuthenticationLivenessCheck()
+//                        }, onRejectAuthentication: {
+//                            // reject authentication
+//                            viewModel.responseToCredentialRequest(credentialRequest: nil, responseStatus: .rejected) { messageId, error in
+//                                if error == nil {
+//                                    self.setCurrentAppScreen(screen: .actionSelection)
+//                                    showToastMessage("Authentication rejected!")
+//                                }
+//                            }
+//                        }
+//                    )
+//                case .authResult(let success):
+//                    AuthResultScreen(success: success,
+//                        onContinue: {
+//                            // Return to action selection (don't show connection success toast)
+//                            showConnectionSuccessToast = false
+//                            withAnimation(.easeInOut(duration: 0.5)) {
+//                                currentScreen = .actionSelection
+//                            }
+//                        }
+//                    )
+//                case .docSignStart:
+//                    DocSignStartScreen(
+//                        onSignDocument: {
+//                            viewModel.respondToVerificationRequest(verificationRequest: nil, status: .accepted, completion: { messageId, error in
+//                                if error == nil {
+//                                    self.setCurrentAppScreen(screen: .docSignResult(success: true))
+//                                } else {
+//                                    self.setCurrentAppScreen(screen: .docSignResult(success: false))
+//                                }
+//                            })
+//                        },
+//                        onRejectDocument: {
+//                            viewModel.respondToVerificationRequest(verificationRequest: nil, status: .rejected, completion: { messageId, error in
+//                                self.setCurrentAppScreen(screen: .actionSelection)
+//                                self.showToastMessage("Document signing rejected!")
+//                            })
+//                        }
+//                    )
+//                case .docSignResult(let success):
+//                    DocSignResultScreen(
+//                        success: success,
+//                        onContinue: {
+//                            // Return to action selection (don't show connection success toast)
+//                            showConnectionSuccessToast = false
+//                            setCurrentAppScreen(screen: .actionSelection)
+//                        }
+//                    )
+//                    
+//                    // MARK: Backup & Restore
+//                case .backupStart:
+//                    BackupAccountStartScreen(isProcessing: $isBackingUp) {
+//                        self.isBackingUp = true
+//                        viewModel.backup { backupFile in
+//                            // open share extension to save file
+//                            if let url = backupFile {
+//                                fileToShareURLs = [url]
+//                            }
+//                            self.isBackingUp = false
+//                            
+//                            withAnimation(.easeInOut(duration: 0.5)) {
+//                                currentScreen = .backupResult(success: backupFile != nil)
+//                            }
+//                        }
+//                    } onBack: {
+//                        withAnimation(.easeInOut(duration: 0.5)) {
+//                            currentScreen = .actionSelection
+//                        }
+//                    }
+//                
+//                case .backupResult(let success):
+//                    BackupAccountResultScreen(success: success) {
+//                        // share backup file
+//                        showShareSheet = true
+//                    } onBack: {
+//                        withAnimation(.easeInOut(duration: 0.5)) {
+//                            currentScreen = .actionSelection
+//                        }
+//                    }
+//                    .sheet(isPresented: $showShareSheet) {
+//                        ShareSheet(items: fileToShareURLs) {
+//                            self.showShareSheet = false
+//                            withAnimation(.easeInOut(duration: 0.5)) {
+//                                currentScreen = .actionSelection
+//                            }
+//                        }
+//                    }
+//                    
+//                case .restoreStart:
+//                    RestoreAccountStartScreen(isProcessing: $isRestoring) {
+//                        showDocumentPicker = true
+//                    } onBack: {
+//                        withAnimation(.easeInOut(duration: 0.5)) {
+//                            currentScreen = .registrationIntro
+//                        }
+//                    }
+//                    .onChange(of: self.selectedFileURLs, perform: { newValue in
+//                        print("Files change: \(newValue)")
+//                        if let url = newValue.first, url.pathExtension == "self_backup" {
+//                            // handle restore account
+//                            if url.startAccessingSecurityScopedResource() {
+//                                print("startAccessingSecurityScopedResource")
+//                            }
+//                            
+//                            // 1. Do liveness to get liveness's selfie image
+//                            SelfSDK.showLiveness(account: viewModel.account, showIntroduction: true, autoDismiss: true, isVerificationRequired: false, onResult: { selfieImageData, credentials, error in
+//                                print("showLivenessCheck credentials: \(credentials)")
+//                                self.isRestoring = true
+//                                viewModel.restore(selfieData: selfieImageData, backupFile: url) { success in
+//                                    print("Restore account finished: \(success)")
+//                                    self.isRestoring = false
+//                                    withAnimation(.easeInOut(duration: 0.5)) {
+//                                        currentScreen = .restoreResult(success: success)
+//                                    }
+//                                }
+//                            })
+//                        }
+//                    })
+//                    .sheet(isPresented: $showDocumentPicker) {
+//                        DocumentPicker(selectedFileName: $selectedFileName, selectedFileURLs: $selectedFileURLs)
+//                    }
+//
+//                
+//                case .restoreResult(let success):
+//                    RestoreAccountResultScreen(success: success) {
+//                        withAnimation(.easeInOut(duration: 0.5)) {
+//                            currentScreen = .serverConnectionSelection
+//                        }
+//                    } onBack: {
+//                        
+//                    }
+//
+//
+//                }
             }
             
             // Server request overlay (blocks interaction while waiting for server response)
@@ -598,7 +598,7 @@ struct ContentView: View {
             if isRegistered && isServerConnected {
                 print("🎯 ContentView: Account registered AND server connected, navigating to ACTION_SELECTION")
                 // Set up message listener if we have a stored server connection
-                viewModel.setupMessageListener()
+                //viewModel.setupMessageListener()
                 // Don't show connection success toast since user is already connected
                 showConnectionSuccessToast = false
                 currentScreen = .actionSelection
@@ -755,26 +755,26 @@ struct ContentView: View {
         print("🔐 ContentView: Starting authentication liveness check with SelfUI")
         
         // Use SelfUI to perform liveness check
-        SelfSDK.showLiveness(account: viewModel.account) { data, credentials, error in
-            DispatchQueue.main.async {
-                if let error = error {
-                    print("🔐 ContentView: ❌ Authentication liveness check failed: \(error)")
-                    showToastMessage("Authentication failed. Please try again.")
-                    // Stay on current screen to allow retry
-                } else {
-                    print("🔐 ContentView: ✅ Authentication liveness check successful")
-                    print("🔐 ContentView: Received \(credentials.count) credentials")
-                    
-                    // Send credential response back to server
-//                    sendCredentialResponse(account: account, credentials: credentials)
-                    viewModel.responseToCredentialRequest(credentialRequest: nil, responseStatus: .accepted) { messsageId, error in
-                        let success = error == nil
-                        // Navigate to result screen
-                        self.setCurrentAppScreen(screen: .authResult(success: success))
-                    }
-                }
-            }
-        }
+//        SelfSDK.showLiveness(account: viewModel.account) { data, credentials, error in
+//            DispatchQueue.main.async {
+//                if let error = error {
+//                    print("🔐 ContentView: ❌ Authentication liveness check failed: \(error)")
+//                    showToastMessage("Authentication failed. Please try again.")
+//                    // Stay on current screen to allow retry
+//                } else {
+//                    print("🔐 ContentView: ✅ Authentication liveness check successful")
+//                    print("🔐 ContentView: Received \(credentials.count) credentials")
+//                    
+//                    // Send credential response back to server
+////                    sendCredentialResponse(account: account, credentials: credentials)
+//                    viewModel.responseToCredentialRequest(credentialRequest: nil, responseStatus: .accepted) { messsageId, error in
+//                        let success = error == nil
+//                        // Navigate to result screen
+//                        self.setCurrentAppScreen(screen: .authResult(success: success))
+//                    }
+//                }
+//            }
+//        }
     }
     
     // MARK: - Verify Credentials
@@ -785,42 +785,42 @@ struct ContentView: View {
         }
     }
     
-    private func sendCredentialResponse(account: Account, credentials: [Credential]) {
-        print("🔐 ContentView: Sending credential response back to server...")
-        
-        guard let credentialRequest = currentCredentialRequest else {
-            print("🔐 ContentView: ❌ Cannot send credential response - no stored credential request")
-            return
-        }
-        
-        Task {
-            do {
-                let credentialResponse = CredentialResponse.Builder()
-                    .withRequestId(credentialRequest.id())
-                    .withTypes(credentialRequest.types())
-                    .toIdentifier(credentialRequest.toIdentifier())
-                    .withStatus(ResponseStatus.accepted)
-                    .withCredentials(credentials)
-                    .build()
-                
-                try await account.send(message: credentialResponse, onAcknowledgement: { messageId, error in
-                    Task { @MainActor in
-                        if let error = error {
-                            print("🔐 ContentView: ❌ Credential response send failed: \(error)")
-                            showToastMessage("Failed to send authentication response: \(error.localizedDescription)")
-                        } else {
-                            print("🔐 ContentView: ✅ Credential response sent successfully with ID: \(messageId)")
-                            // Clear the stored request since we've responded to it
-                            currentCredentialRequest = nil
-                        }
-                    }
-                })
-            } catch {
-                print("🔐 ContentView: ❌ Failed to build credential response: \(error)")
-                showToastMessage("Failed to build authentication response: \(error.localizedDescription)")
-            }
-        }
-    }
+//    private func sendCredentialResponse(account: Account, credentials: [Credential]) {
+//        print("🔐 ContentView: Sending credential response back to server...")
+//        
+//        guard let credentialRequest = currentCredentialRequest else {
+//            print("🔐 ContentView: ❌ Cannot send credential response - no stored credential request")
+//            return
+//        }
+//        
+//        Task {
+//            do {
+//                let credentialResponse = CredentialResponse.Builder()
+//                    .withRequestId(credentialRequest.id())
+//                    .withTypes(credentialRequest.types())
+//                    .toIdentifier(credentialRequest.toIdentifier())
+//                    .withStatus(ResponseStatus.accepted)
+//                    .withCredentials(credentials)
+//                    .build()
+//                
+//                try await account.send(message: credentialResponse, onAcknowledgement: { messageId, error in
+//                    Task { @MainActor in
+//                        if let error = error {
+//                            print("🔐 ContentView: ❌ Credential response send failed: \(error)")
+//                            showToastMessage("Failed to send authentication response: \(error.localizedDescription)")
+//                        } else {
+//                            print("🔐 ContentView: ✅ Credential response sent successfully with ID: \(messageId)")
+//                            // Clear the stored request since we've responded to it
+//                            currentCredentialRequest = nil
+//                        }
+//                    }
+//                })
+//            } catch {
+//                print("🔐 ContentView: ❌ Failed to build credential response: \(error)")
+//                showToastMessage("Failed to build authentication response: \(error.localizedDescription)")
+//            }
+//        }
+//    }
     
     private func sendVerificationResponse(account: Account, accepted: Bool) {
         print("📄 ContentView: Sending verification response back to server...")
@@ -830,34 +830,34 @@ struct ContentView: View {
             return
         }
         
-        Task {
-            do {
-                let status = accepted ? ResponseStatus.accepted : ResponseStatus.rejected
-                let verificationResponse = VerificationResponse.Builder()
-                    .withRequestId(verificationRequest.id())
-                    .withTypes(verificationRequest.types())
-                    .toIdentifier(verificationRequest.toIdentifier())
-                    .fromIdentifier(verificationRequest.fromIdentifier())
-                    .withStatus(status)
-                    .build()
-                
-                try await account.send(message: verificationResponse, onAcknowledgement: { messageId, error in
-                    Task { @MainActor in
-                        if let error = error {
-                            print("📄 ContentView: ❌ Verification response send failed: \(error)")
-                            showToastMessage("Failed to send document signing response: \(error.localizedDescription)")
-                        } else {
-                            print("📄 ContentView: ✅ Verification response sent successfully with ID: \(messageId)")
-                            // Clear the stored request since we've responded to it
-                            currentVerificationRequest = nil
-                        }
-                    }
-                })
-            } catch {
-                print("📄 ContentView: ❌ Failed to build verification response: \(error)")
-                showToastMessage("Failed to build document signing response: \(error.localizedDescription)")
-            }
-        }
+//        Task {
+//            do {
+//                let status = accepted ? ResponseStatus.accepted : ResponseStatus.rejected
+//                let verificationResponse = VerificationResponse.Builder()
+//                    .withRequestId(verificationRequest.id())
+//                    .withTypes(verificationRequest.types())
+//                    .toIdentifier(verificationRequest.toIdentifier())
+//                    .fromIdentifier(verificationRequest.fromIdentifier())
+//                    .withStatus(status)
+//                    .build()
+//                
+//                try await account.send(message: verificationResponse, onAcknowledgement: { messageId, error in
+//                    Task { @MainActor in
+//                        if let error = error {
+//                            print("📄 ContentView: ❌ Verification response send failed: \(error)")
+//                            showToastMessage("Failed to send document signing response: \(error.localizedDescription)")
+//                        } else {
+//                            print("📄 ContentView: ✅ Verification response sent successfully with ID: \(messageId)")
+//                            // Clear the stored request since we've responded to it
+//                            currentVerificationRequest = nil
+//                        }
+//                    }
+//                })
+//            } catch {
+//                print("📄 ContentView: ❌ Failed to build verification response: \(error)")
+//                showToastMessage("Failed to build document signing response: \(error.localizedDescription)")
+//            }
+//        }
     }
     
     private func handleIncomingRequest(_ request: Any) {
@@ -886,77 +886,77 @@ struct ContentView: View {
     }
     
     private func handleIncomingCredentialRequest(_ credentialRequest: CredentialRequest) {
-        let fromAddress = credentialRequest.fromIdentifier()
-        print("🎯 ContentView: 🎫 Credential request from \(fromAddress)")
-        
-        // Store the credential request so we can respond to it later
-        currentCredentialRequest = credentialRequest
-        
-        // check credential request type
-        
-        // Cancel timeout if waiting for auth request
-        serverRequestTimeoutTask?.cancel()
-        
-        // Hide overlay and navigate to AUTH_START
-        showServerRequestOverlay = false
-        let emailCredential = credentialRequest.details().first?.types().contains(CredentialType.Email) ?? false
-        let documentCredential = credentialRequest.details().first?.types().contains(CredentialType.Passport) ?? false
-        let customCredential = credentialRequest.details().first?.types().contains("CustomerCredential") ?? false
-        
-        if emailCredential {
-            withAnimation(.easeInOut(duration: 0.5)) {
-                currentScreen = .shareEmailStart
-            }
-        } else if documentCredential {
-            withAnimation(.easeInOut(duration: 0.5)) {
-                currentScreen = .shareDocumentStart
-            }
-        } else if customCredential {
-            withAnimation(.easeInOut(duration: 0.5)) {
-                currentScreen = .shareCredentialCustomStart
-            }
-        }else {
-            withAnimation(.easeInOut(duration: 0.5)) {
-                currentScreen = .authStart
-            }
-        }
+//        let fromAddress = credentialRequest.fromIdentifier()
+//        print("🎯 ContentView: 🎫 Credential request from \(fromAddress)")
+//        
+//        // Store the credential request so we can respond to it later
+//        currentCredentialRequest = credentialRequest
+//        
+//        // check credential request type
+//        
+//        // Cancel timeout if waiting for auth request
+//        serverRequestTimeoutTask?.cancel()
+//        
+//        // Hide overlay and navigate to AUTH_START
+//        showServerRequestOverlay = false
+//        let emailCredential = credentialRequest.details().first?.types().contains(CredentialType.Email) ?? false
+//        let documentCredential = credentialRequest.details().first?.types().contains(CredentialType.Passport) ?? false
+//        let customCredential = credentialRequest.details().first?.types().contains("CustomerCredential") ?? false
+//        
+//        if emailCredential {
+//            withAnimation(.easeInOut(duration: 0.5)) {
+//                currentScreen = .shareEmailStart
+//            }
+//        } else if documentCredential {
+//            withAnimation(.easeInOut(duration: 0.5)) {
+//                currentScreen = .shareDocumentStart
+//            }
+//        } else if customCredential {
+//            withAnimation(.easeInOut(duration: 0.5)) {
+//                currentScreen = .shareCredentialCustomStart
+//            }
+//        }else {
+//            withAnimation(.easeInOut(duration: 0.5)) {
+//                currentScreen = .authStart
+//            }
+//        }
     }
     
     
     
     private func handleIncomingVerificationRequest(_ verificationRequest: VerificationRequest) {
-        let fromAddress = verificationRequest.fromIdentifier()
-        print("🎯 ContentView: 📝 Verification request from \(fromAddress)")
-        
-        // Store the verification request so we can respond to it later
-        currentVerificationRequest = verificationRequest
-        
-        // Cancel timeout if waiting for doc signing request
-        serverRequestTimeoutTask?.cancel()
-        
-        // Hide overlay and navigate to DOC_SIGN_START
-        showServerRequestOverlay = false
-        withAnimation(.easeInOut(duration: 0.5)) {
-            currentScreen = .docSignStart
-        }
+//        let fromAddress = verificationRequest.fromIdentifier()
+//        print("🎯 ContentView: 📝 Verification request from \(fromAddress)")
+//        
+//        // Store the verification request so we can respond to it later
+//        currentVerificationRequest = verificationRequest
+//        
+//        // Cancel timeout if waiting for doc signing request
+//        serverRequestTimeoutTask?.cancel()
+//        
+//        // Hide overlay and navigate to DOC_SIGN_START
+//        showServerRequestOverlay = false
+//        withAnimation(.easeInOut(duration: 0.5)) {
+//            currentScreen = .docSignStart
+//        }
     }
     
     private func handleIncomingChatMessage(_ chatMessage: ChatMessage) {
-        let messageContent = chatMessage.message()
-        let fromAddress = chatMessage.fromIdentifier()
-        print("🎯 ContentView: 💬 Chat message from \(fromAddress): '\(messageContent)'")
+//        let messageContent = chatMessage.message()
+//        let fromAddress = chatMessage.fromIdentifier()
+//        print("🎯 ContentView: 💬 Chat message from \(fromAddress): '\(messageContent)'")
         // Chat messages are informational, no specific action needed
     }
     
     private func handleIncomingCredentialMessage(_ credentialMessage: CredentialMessage) {
-        let messageContent = credentialMessage.credentials()
-        let fromAddress = credentialMessage.fromIdentifier()
-        
-        print("🎯 ContentView: 💬 Credential message from \(fromAddress): '\(messageContent)'")
-        // Chat messages are informational, no specific action needed
-        withAnimation(.easeInOut(duration: 0.5)) {
-            currentScreen = .getCustomCredentialResult(success: true)
-        }
+//        let messageContent = credentialMessage.credentials()
+//        let fromAddress = credentialMessage.fromIdentifier()
+//        
+//        print("🎯 ContentView: 💬 Credential message from \(fromAddress): '\(messageContent)'")
+//        // Chat messages are informational, no specific action needed
+//        withAnimation(.easeInOut(duration: 0.5)) {
+//            currentScreen = .getCustomCredentialResult(success: true)
+//        }
     }
     
     private func showToastMessage(_ message: String) {

@@ -11,7 +11,7 @@ import self_ios_sdk
 
 struct CredentialItem: Identifiable {
     var id: String = UUID().uuidString
-    var claims: [Claim]
+    var claims: [String]
 }
 
 struct SERVER_REQUESTS {
@@ -67,11 +67,12 @@ final class MainViewModel: ObservableObject {
         }
         
         // add listener
-        setupMessageListener()
+//        setupMessageListener()
     }
     
     // MARK: - Message Handling
     
+    /*
     func setupMessageListener() {
         account.setOnInfoRequest { (key: String) in
             print("setOnInfoRequest: \(key)")
@@ -169,67 +170,67 @@ final class MainViewModel: ObservableObject {
         }*/
         
         print("🎯 MainViewModel: ✅ Message listeners configured successfully")
-    }
+    } */
     
     // transform credential into credential item to perform identifiable to display inside a List
     @Published var credentialItems: [CredentialItem] = []
     func reloadCredentialItems() {
         Task { @MainActor in
-            credentialItems = account.credentials().map { credential in
-                CredentialItem(claims: credential.claims())
-            }
+//            credentialItems = account.credentials().map { credential in
+//                CredentialItem(claims: credential.claims())
+//            }
         }
     }
     
     func registerAccount(completion: ((Bool) -> Void)? = nil) {
-        SelfSDK.showLiveness(account: account, showIntroduction: true, autoDismiss: true, onResult: { selfieImageData, credentials, error in
-            print("showLivenessCheck credentials: \(credentials)")
-            self.register(selfieImageData: selfieImageData, credentials: credentials) { success in
-                Task { @MainActor in
-                    completion?(success)
-                }
-            }
-        })
+//        SelfSDK.showLiveness(account: account, showIntroduction: true, autoDismiss: true, onResult: { selfieImageData, credentials, error in
+//            print("showLivenessCheck credentials: \(credentials)")
+//            self.register(selfieImageData: selfieImageData, credentials: credentials) { success in
+//                Task { @MainActor in
+//                    completion?(success)
+//                }
+//            }
+//        })
     }
     
     func handleAuthData(data: Data, completion: ((Error?) -> Void)? = nil) {
-        Task(priority: .background) {
-            do {
-                let discoveryData = try await Account.qrCode(data: data)
-                print("Discovery Data: \(discoveryData)")
-                self.serverAddress = discoveryData?.address
-                try await account.connectWith(qrCode: data)
-                Task { @MainActor in
-                    completion?(nil)
-                }
-            } catch {
-                print("Handle data error: \(error)")
-                Task { @MainActor in
-                    completion?(error)
-                }
-            }
-        }
+//        Task(priority: .background) {
+//            do {
+//                let discoveryData = try await Account.qrCode(data: data)
+//                print("Discovery Data: \(discoveryData)")
+//                self.serverAddress = discoveryData?.address
+//                try await account.connectWith(qrCode: data)
+//                Task { @MainActor in
+//                    completion?(nil)
+//                }
+//            } catch {
+//                print("Handle data error: \(error)")
+//                Task { @MainActor in
+//                    completion?(error)
+//                }
+//            }
+//        }
     }
     
     func handleSigningRequest(signingRequest: SigningRequest) {
         
     }
     
-    func respondToSigningRequest(signingRequest: SigningRequest, status: ResponseStatus, credentials: [Credential]) {
-        print("respondToSigningRequest: \(signingRequest.id()) -> status: \(status)")
-        
-        let signingResponse = SigningResponse.Builder()
-            .withRequestId(signingRequest.id())
-            .toIdentifier(signingRequest.toIdentifier())
-            .fromIdentifier(signingRequest.fromIdentifier())
-            .withStatus(status)
-            .withCredentials(credentials)
-            .build()
-
-        self.sendKMPMessage(message: signingResponse) { messageId, error in
-            print("sent signing response with id: \(messageId) error: \(error)")
-        }
-    }
+//    func respondToSigningRequest(signingRequest: SigningRequest, status: ResponseStatus, credentials: [Credential]) {
+//        print("respondToSigningRequest: \(signingRequest.id()) -> status: \(status)")
+//        
+//        let signingResponse = SigningResponse.Builder()
+//            .withRequestId(signingRequest.id())
+//            .toIdentifier(signingRequest.toIdentifier())
+//            .fromIdentifier(signingRequest.fromIdentifier())
+//            .withStatus(status)
+//            .withCredentials(credentials)
+//            .build()
+//
+//        self.sendKMPMessage(message: signingResponse) { messageId, error in
+//            print("sent signing response with id: \(messageId) error: \(error)")
+//        }
+//    }
     
     private func handleIncomingMessage(_ message: ChatMessage) {
         print("🎯 ContentView: 📥 Received incoming message of type: \(type(of: message))")
@@ -248,10 +249,10 @@ final class MainViewModel: ObservableObject {
     }
     
     private func handleIncomingCredentialMessage(_ credentialMessage: CredentialMessage) {
-        let messageContent = credentialMessage.credentials()
-        let fromAddress = credentialMessage.fromIdentifier()
-        
-        print("🎯 ContentView: 💬 Credential message from \(fromAddress): '\(messageContent)'")
+//        let messageContent = credentialMessage.credentials()
+//        let fromAddress = credentialMessage.fromIdentifier()
+//        
+//        print("🎯 ContentView: 💬 Credential message from \(fromAddress): '\(messageContent)'")
         // Chat messages are informational, no specific action needed
 //        withAnimation(.easeInOut(duration: 0.5)) {
 //            currentScreen = .getCustomCredentialResult(success: true)
@@ -259,32 +260,32 @@ final class MainViewModel: ObservableObject {
     }
     
     private func handleVerificationRequest(verificationRequest: VerificationRequest) {
-        let fromAddress = verificationRequest.fromIdentifier()
-        print("🎯 MainViewModel: 🎫 Verification request from \(fromAddress)")
-        currentVerificationRequest = verificationRequest
+//        let fromAddress = verificationRequest.fromIdentifier()
+//        print("🎯 MainViewModel: 🎫 Verification request from \(fromAddress)")
+//        currentVerificationRequest = verificationRequest
         
         // FIXME: Currently, we just assumed that the verification is document signing request
         self.notifyAppScreen(screen: .docSignStart)
     }
 
     private func handleCredentialRequest(credentialRequest: CredentialRequest) {
-        let fromAddress = credentialRequest.fromIdentifier()
-        print("🎯 MainViewModel: 🎫 Credential request from \(fromAddress)")
+//        let fromAddress = credentialRequest.fromIdentifier()
+//        print("🎯 MainViewModel: 🎫 Credential request from \(fromAddress)")
         currentCredentialRequest = credentialRequest
         
-        let emailCredential = credentialRequest.details().first?.types().contains(CredentialType.Email) ?? false
-        let documentCredential = credentialRequest.details().first?.types().contains(CredentialType.Passport) ?? false
-        let customCredential = credentialRequest.details().first?.types().contains("CustomerCredential") ?? false
-        
-        if emailCredential {
-            self.notifyAppScreen(screen: .shareEmailStart)
-        } else if documentCredential {
-            self.notifyAppScreen(screen: .shareDocumentStart)
-        } else if customCredential {
-            self.notifyAppScreen(screen: .shareCredentialCustomStart)
-        }else {
-            self.notifyAppScreen(screen: .authStart)
-        }
+//        let emailCredential = credentialRequest.details().first?.types().contains(CredentialType.Email) ?? false
+//        let documentCredential = credentialRequest.details().first?.types().contains(CredentialType.Passport) ?? false
+//        let customCredential = credentialRequest.details().first?.types().contains("CustomerCredential") ?? false
+//        
+//        if emailCredential {
+//            self.notifyAppScreen(screen: .shareEmailStart)
+//        } else if documentCredential {
+//            self.notifyAppScreen(screen: .shareDocumentStart)
+//        } else if customCredential {
+//            self.notifyAppScreen(screen: .shareCredentialCustomStart)
+//        }else {
+//            self.notifyAppScreen(screen: .authStart)
+//        }
     }
     
     private func notifyAppScreen(screen: AppScreen) {
@@ -293,55 +294,55 @@ final class MainViewModel: ObservableObject {
         }
     }
     
-    func respondToVerificationRequest(verificationRequest: VerificationRequest?, status: ResponseStatus, credentials: [Credential] = [], completion: ((String, Error?) -> Void)? = nil) {
-        print("respondToVerificationRequest: \(verificationRequest?.id()) -> status: \(status)")
-        
-        var temp = verificationRequest
-        if temp == nil {
-            temp = currentVerificationRequest
-        }
-        
-        guard let verificationRequest = temp else {
-            print("📄 MainViewModel: ❌ Cannot send verification response - no stored verification request")
-            return
-        }
-        
-        let verificationResponse = VerificationResponse.Builder()
-            .withRequestId(verificationRequest.id())
-            .toIdentifier(verificationRequest.toIdentifier())
-            .fromIdentifier(verificationRequest.fromIdentifier())
-            .withTypes(verificationRequest.types())
-            .withStatus(status)
-            .withCredentials(credentials)
-            .build()
-
-        self.sendKMPMessage(message: verificationResponse) { messageId, error in
-            print("sent verification response with id: \(messageId) error: \(error)")
-            Task { @MainActor in
-                completion?(messageId, error)
-            }
-        }
-    }
+//    func respondToVerificationRequest(verificationRequest: VerificationRequest?, status: ResponseStatus, credentials: [Credential] = [], completion: ((String, Error?) -> Void)? = nil) {
+//        print("respondToVerificationRequest: \(verificationRequest?.id()) -> status: \(status)")
+//        
+//        var temp = verificationRequest
+//        if temp == nil {
+//            temp = currentVerificationRequest
+//        }
+//        
+//        guard let verificationRequest = temp else {
+//            print("📄 MainViewModel: ❌ Cannot send verification response - no stored verification request")
+//            return
+//        }
+//        
+//        let verificationResponse = VerificationResponse.Builder()
+//            .withRequestId(verificationRequest.id())
+//            .toIdentifier(verificationRequest.toIdentifier())
+//            .fromIdentifier(verificationRequest.fromIdentifier())
+//            .withTypes(verificationRequest.types())
+//            .withStatus(status)
+//            .withCredentials(credentials)
+//            .build()
+//
+//        self.sendKMPMessage(message: verificationResponse) { messageId, error in
+//            print("sent verification response with id: \(messageId) error: \(error)")
+//            Task { @MainActor in
+//                completion?(messageId, error)
+//            }
+//        }
+//    }
     
     func lfcFlow() {
-        SelfSDK.showLiveness(account: account, showIntroduction: true, autoDismiss: true, onResult: { selfieImageData, credentials, error in
-            print("showLivenessCheck credentials: \(credentials)")
-            //self.register(selfieImageData: selfieImageData, credentials: credentials)
-        })
+//        SelfSDK.showLiveness(account: account, showIntroduction: true, autoDismiss: true, onResult: { selfieImageData, credentials, error in
+//            print("showLivenessCheck credentials: \(credentials)")
+//            //self.register(selfieImageData: selfieImageData, credentials: credentials)
+//        })
     }
     
-    private func register(selfieImageData: Data, credentials: [Credential], completion: ((Bool) -> Void)? = nil) {
-        Task(priority: .background) {
-            do {
-                let success = try await account.register(selfieImage: selfieImageData, credentials: credentials)
-                print("Register account: \(success)")
-                completion?(success)
-            } catch let error {
-                print("Register Error: \(error)")
-                completion?(false)
-            }
-        }
-    }
+//    private func register(selfieImageData: Data, credentials: [Credential], completion: ((Bool) -> Void)? = nil) {
+//        Task(priority: .background) {
+//            do {
+//                let success = try await account.register(selfieImage: selfieImageData, credentials: credentials)
+//                print("Register account: \(success)")
+//                completion?(success)
+//            } catch let error {
+//                print("Register Error: \(error)")
+//                completion?(false)
+//            }
+//        }
+//    }
     
     // MARK: - Server connection
     func connectToSelfServer(serverAddress: String, completion: @escaping((Bool) -> Void)) async {
@@ -355,13 +356,13 @@ final class MainViewModel: ObservableObject {
         }
         
         do {
-            let connectionResult = try await account.connectWith(address: serverAddress, info: [:])
+//            let connectionResult = try await account.connectWith(address: serverAddress, info: [:])
 
             DispatchQueue.main.async {
                 // Only proceed if we haven't timed out
                 if self.isConnecting {
-                    print("🌐 ServerConnectionProcessing: ✅ Successfully connected to server")
-                    print("🌐 ServerConnectionProcessing: Connection result: \(connectionResult)")
+//                    print("🌐 ServerConnectionProcessing: ✅ Successfully connected to server")
+//                    print("🌐 ServerConnectionProcessing: Connection result: \(connectionResult)")
 
                     //currentStep = 4 // Completed
                     self.isConnecting = false
@@ -395,10 +396,14 @@ final class MainViewModel: ObservableObject {
         
         print("serverAddress: \(serverAddress)")
         print("withMessage: \(message)")
+        guard let fromPK = account.generateAddress() else {
+            print("Failed to generate address.")
+            return
+        }
         
         let chatMessage = ChatMessage.Builder()
-            .toIdentifier(serverAddress)
-            .fromIdentifier(account.generateAddress())
+            .toAddress(PublicKey(rawValue: serverAddress))
+            .fromAddress(fromPK)
             .withMessage(message)
             .build()
 
@@ -410,16 +415,16 @@ final class MainViewModel: ObservableObject {
     
     func sendKMPMessage(message: Message, completion: ((_ messageId: String, _ error: Error?) -> ())? = nil) {
         Task(priority: .background, operation: {
-            try await self.account.send(message: message, onAcknowledgement: {msgId, error in
-                print("message sent: \(msgId)")
-                if let error = error {
-                    print("🔐 MainViewModel ❌ message send failed: \(error)")
-                } else {
-                    print("🔐 MainViewModel: ✅ message sent successfully with ID: \(msgId)")
-                    // Message sent successfully, now waiting for server response via message listener
-                }
-                completion?(msgId, error)
-            })
+//            try await self.account.send(message: message, onAcknowledgement: {msgId, error in
+//                print("message sent: \(msgId)")
+//                if let error = error {
+//                    print("🔐 MainViewModel ❌ message send failed: \(error)")
+//                } else {
+//                    print("🔐 MainViewModel: ✅ message sent successfully with ID: \(msgId)")
+//                    // Message sent successfully, now waiting for server response via message listener
+//                }
+//                completion?(msgId, error)
+//            })
         })
     }
     
@@ -436,20 +441,20 @@ final class MainViewModel: ObservableObject {
         }
         
         
-        let storedCredentials = account.lookUpCredentials(claims: credentialRequest.details())
-        
-        let credentialResponse = CredentialResponse.Builder()
-            .withRequestId(credentialRequest.id())
-            .withTypes(credentialRequest.types())
-            .toIdentifier(credentialRequest.toIdentifier())
-            .withStatus(responseStatus)
-            .withCredentials(storedCredentials)
-            .build()
-        self.sendKMPMessage(message: credentialResponse) { messageId, error in
-            Task { @MainActor in
-                completion?(messageId, error)
-            }
-        }
+//        let storedCredentials = account.lookUpCredentials(claims: credentialRequest.details())
+//        
+//        let credentialResponse = CredentialResponse.Builder()
+//            .withRequestId(credentialRequest.id())
+//            .withTypes(credentialRequest.types())
+//            .toIdentifier(credentialRequest.toIdentifier())
+//            .withStatus(responseStatus)
+//            .withCredentials(storedCredentials)
+//            .build()
+//        self.sendKMPMessage(message: credentialResponse) { messageId, error in
+//            Task { @MainActor in
+//                completion?(messageId, error)
+//            }
+//        }
     }
     
     func saveServerConnected(isConnected: Bool) {
@@ -478,36 +483,36 @@ final class MainViewModel: ObservableObject {
     // MARK: - Backup & Restore
     func backup(completion: ((URL?) -> Void)? = nil) {
         Task (priority: .background) {
-            guard let backupFile = await account.backup() else {
-                completion?(nil)
-                return
-            }
-            print("Backup file: \(backupFile)")
-            Task { @MainActor in
-                completion?(backupFile)
-            }
+//            guard let backupFile = await account.backup() else {
+//                completion?(nil)
+//                return
+//            }
+//            print("Backup file: \(backupFile)")
+//            Task { @MainActor in
+//                completion?(backupFile)
+//            }
         }
     }
     
     
     func restore(selfieData: Data, backupFile: URL, completion: ((Bool) -> Void)? = nil) {
         Task (priority: .background) {
-            do {
-                let credentials = try await account.restore(backupFile: backupFile, selfieImage: selfieData)
-                print("Restore complete with error: \(credentials.count)")
-                if credentials.count > 0  {
-                    // register sandbox if needed
-                    Task { @MainActor in
-                        completion?(true)
-                    }
-                } else {
-                    Task { @MainActor in
-                        completion?(false)
-                    }
-                }
-            } catch {
-                
-            }
+//            do {
+//                let credentials = try await account.restore(backupFile: backupFile, selfieImage: selfieData)
+//                print("Restore complete with error: \(credentials.count)")
+//                if credentials.count > 0  {
+//                    // register sandbox if needed
+//                    Task { @MainActor in
+//                        completion?(true)
+//                    }
+//                } else {
+//                    Task { @MainActor in
+//                        completion?(false)
+//                    }
+//                }
+//            } catch {
+//                
+//            }
             
         }
     }
