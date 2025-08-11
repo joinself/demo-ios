@@ -67,12 +67,12 @@ struct MainContentView: View {
             .buttonStyle(.borderedProminent)
             
             Button {
-                SelfSDK.verifyEmail(account: viewModel.account, transitionAsModal: true) { success in
-                    print("Verify email finished: \(success)")
-                    if success {
-                        //self.viewModel.reloadCredentialItems()
-                    }
-                }
+//                SelfSDK.verifyEmail(account: viewModel.account, transitionAsModal: true) { success in
+//                    print("Verify email finished: \(success)")
+//                    if success {
+//                        //self.viewModel.reloadCredentialItems()
+//                    }
+//                }
             } label: {
                 Text("Verify Email Without Prompt Flow")
             }
@@ -127,26 +127,27 @@ struct MainContentView: View {
         .fullScreenCover(isPresented: $showVerifyDocument, onDismiss: {
             // dismiss view
         }, content: {
-            DocumentFlow(account: viewModel.account, autoCaptureImage: false, onResult:  { success in
-                print("Verify document finished: \(success)")
-                showVerifyDocument = false
-                // reload view to display document's credential
-                if success {
-                    self.viewModel.reloadCredentialItems()
-                }
-            })
+            Text("Document Flow")
+//            DocumentFlow(account: viewModel.account, autoCaptureImage: false, onResult:  { success in
+//                print("Verify document finished: \(success)")
+//                showVerifyDocument = false
+//                // reload view to display document's credential
+//                if success {
+//                    self.viewModel.reloadCredentialItems()
+//                }
+//            })
         })
-        .fullScreenCover(isPresented: $showVerifyEmail, onDismiss: {
-            
-        }, content: {
-            EmailFlow(account: viewModel.account, autoDismiss: false, onResult: { success in
-                print("Verify email finished = \(success)")
-                self.showVerifyEmail = false
-                if success {
-                    self.viewModel.reloadCredentialItems()
-                }
-            })
-        })
+//        .fullScreenCover(isPresented: $showVerifyEmail, onDismiss: {
+//            
+//        }, content: {
+//            EmailFlow(account: viewModel.account, autoDismiss: false, onResult: { success in
+//                print("Verify email finished = \(success)")
+//                self.showVerifyEmail = false
+//                if success {
+//                    self.viewModel.reloadCredentialItems()
+//                }
+//            })
+//        })
         .fullScreenCover(isPresented: $showQRScanner, onDismiss: {
             
         }, content: {

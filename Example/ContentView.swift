@@ -94,7 +94,35 @@ struct ContentView: View {
                 setCurrentAppScreen(screen: appScreen)
             }
             
-            Group {
+            switch currentScreen {
+                
+            case .initialization:
+                InitializeSDKScreen(isInitialized: $viewModel.isInitialized, onInitializationComplete: {
+                    determineNextScreen()
+                })
+            case .registrationIntro:
+                RegistrationIntroScreen(isProcessing: $isRegistering) {
+                    // start registration
+                    self.isRegistering = true
+                    viewModel.registerAccount { success in
+                        viewModel.accountRegistered = success
+                        self.isRegistering = success
+                        withAnimation(.easeInOut(duration: 0.5)) {
+                            currentScreen = .serverConnectionSelection
+                        }
+                    }
+                } onRestore: {
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        currentScreen = .restoreStart
+                    }
+                }
+                
+            default:
+                Text("Current screen: \(currentScreen)")
+                    .foregroundStyle(.black)
+            }
+            
+//            Group {
 //                switch currentScreen {
 //                case .initialization:
 //                    InitializeSDKScreen(isInitialized: $viewModel.isInitialized, onInitializationComplete: {
@@ -533,7 +561,7 @@ struct ContentView: View {
 //
 //
 //                }
-            }
+//            }
             
             // Server request overlay (blocks interaction while waiting for server response)
             if showServerRequestOverlay {
@@ -559,7 +587,7 @@ struct ContentView: View {
                 ToastMessageView(message: toastMessage)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
             }
-        }
+        }.ignoresSafeArea()
     }
     
     private func setCurrentAppScreen(screen: AppScreen) {

@@ -28,10 +28,30 @@ struct UserDefaultKeys {
     static let connectedServerAddress = "connectedServerAddress"
 }
 
-final class MainViewModel: ObservableObject {
+final class MainViewModel: ObservableObject, AccountDelegate {
+    func onConnect() {
+        print("onConnect")
+    }
+    
+    func onAcknowledgement(id: String) {
+        print("onAcknowledgement: \(id)")
+    }
+    
+    func onMessage(message: any self_ios_sdk.Message) {
+        print("onMessage: \(message)")
+    }
+    
+    func onDisconnect(errorMessage: String?) {
+        print("onDisconnect: \(errorMessage)")
+    }
+    
+    func onError(id: String, errorMessage: String?) {
+        print("onError: \(id) - \(errorMessage)")
+    }
+    
     @Published var isOnboardingCompleted: Bool = false
     
-    let account: Account
+    private var account: Account?
     @Published var accountRegistered: Bool = false
     @Published var isInitialized: Bool = false
     
@@ -55,6 +75,7 @@ final class MainViewModel: ObservableObject {
             .withEnvironment(Environment.production)
             .withSandbox(true) // if true -> production
             .withGroupId("") // ex: com.example.app.your_app_group
+            .withDelegate(delegate: self)
             .withStoragePath(FileManager.storagePath)
             .build()
         
@@ -396,7 +417,7 @@ final class MainViewModel: ObservableObject {
         
         print("serverAddress: \(serverAddress)")
         print("withMessage: \(message)")
-        guard let fromPK = account.generateAddress() else {
+        guard let fromPK = account?.generateAddress() else {
             print("Failed to generate address.")
             return
         }
@@ -518,7 +539,7 @@ final class MainViewModel: ObservableObject {
     }
     
     func accountIsRegistered() -> Bool {
-        return account.registered()
+        return account?.registered() ?? false
     }
 }
 
