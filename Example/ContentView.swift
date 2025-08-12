@@ -21,6 +21,7 @@ import SelfUI
 enum AppScreen: Equatable {
     case initialization
     case registrationIntro
+    case registerAccountView
     case serverConnectionSelection
     case serverConnection
     case serverConnectionProcessing(serverAddress: String)
@@ -102,18 +103,29 @@ struct ContentView: View {
                 })
             case .registrationIntro:
                 RegistrationIntroScreen(isProcessing: $isRegistering) {
+                    self.setCurrentAppScreen(screen: .registerAccountView)
                     // start registration
-                    self.isRegistering = true
-                    viewModel.registerAccount { success in
-                        viewModel.accountRegistered = success
-                        self.isRegistering = success
-                        withAnimation(.easeInOut(duration: 0.5)) {
-                            currentScreen = .serverConnectionSelection
-                        }
-                    }
+//                    self.isRegistering = true
+//                    viewModel.registerAccount { success in
+//                        viewModel.accountRegistered = success
+//                        self.isRegistering = success
+//                        withAnimation(.easeInOut(duration: 0.5)) {
+//                            currentScreen = .serverConnectionSelection
+//                        }
+//                    }
                 } onRestore: {
                     withAnimation(.easeInOut(duration: 0.5)) {
                         currentScreen = .restoreStart
+                    }
+                }
+                
+            case .registerAccountView:
+                RegistrationFlow(account: viewModel.getAccount()) { result in
+                    switch result {
+                    case .success:
+                        print("Register account success.")
+                    case .failure(let error):
+                        print("Register account error: \(error)")
                     }
                 }
                 

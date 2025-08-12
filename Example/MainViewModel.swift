@@ -91,6 +91,13 @@ final class MainViewModel: ObservableObject, AccountDelegate {
 //        setupMessageListener()
     }
     
+    func getAccount() -> Account {
+        guard let account = account else {
+            fatalError("Account is not initialized!")
+        }
+        return account
+    }
+    
     // MARK: - Message Handling
     
     /*
