@@ -124,10 +124,38 @@ struct ContentView: View {
                     switch result {
                     case .success:
                         print("Register account success.")
+                        self.setCurrentAppScreen(screen: .serverConnectionSelection)
                     case .failure(let error):
                         print("Register account error: \(error)")
                     }
                 }
+                
+            case .serverConnectionSelection:
+                ServerConnectionSelectionScreen { connectionActionType in
+                    if connectionActionType == .manuallyConnect {
+                        self.setCurrentAppScreen(screen: .serverConnection)
+                    } else if connectionActionType == .scanQrCodeConnect {
+                        // MARK: QRCode Connection
+                        self.showQRScanner = true
+                    }
+                } onBack: {
+                    
+                }
+                .fullScreenCover(isPresented: $showQRScanner, onDismiss: {
+                    
+                }, content: {
+                    QRReaderView(isCodeValid: $isCodeValid, onCode: { code in
+                        print("QRCode: \(code)")
+                    }) { codeData in
+                        print("QRCode: \(codeData)")
+                        viewModel.handleAuthData(data: codeData) { error in
+                            if error == nil {
+                                showQRScanner = false
+                                self.setCurrentAppScreen(screen: .actionSelection)
+                            }
+                        }
+                    }
+                })
                 
             default:
                 Text("Current screen: \(currentScreen)")
