@@ -166,6 +166,21 @@ struct ContentView: View {
                         let serverAddress = discoveryData.address
                         let sandbox = discoveryData.sandbox
                         print("Discovery data: \(discoveryData)")
+                        Task {
+                            await viewModel.connectToSelfServer(serverAddress: serverAddress.getRawValue()) { success in
+                                // connection completion
+                                if success {
+                                    // Update server connection state and navigate to action selection
+                                    viewModel.saveServerConnected(isConnected: true)
+                                    viewModel.saveServerAddress(serverAddress: serverAddress.getRawValue())
+                                    // Show success toast since this is first visit after connection
+                                    showConnectionSuccessToast = true
+                                    self.setCurrentAppScreen(screen: .actionSelection)
+                                } else {
+                                    print("Server connection error!")
+                                }
+                            }
+                        }
                     case .failure(let error):
                         print("QR Code Error: \(error)")
                     }
@@ -229,6 +244,31 @@ struct ContentView: View {
                     }, onBack: {
                         self.viewModel.resetUserDefaults()
                         self.setCurrentAppScreen(screen: .serverConnectionSelection)
+                    }
+                )
+                
+            case .authStart:
+                AuthStartScreen(
+                    onStartAuthentication: {
+                        startAuthenticationLivenessCheck()
+                    }, onRejectAuthentication: {
+                        // reject authentication
+                        viewModel.responseToCredentialRequest(credentialRequest: nil, responseStatus: .rejected) { messageId, error in
+                            if error == nil {
+                                self.setCurrentAppScreen(screen: .actionSelection)
+                                showToastMessage("Authentication rejected!")
+                            }
+                        }
+                    }
+                )
+            case .authResult(let success):
+                AuthResultScreen(success: success,
+                    onContinue: {
+                        // Return to action selection (don't show connection success toast)
+                        showConnectionSuccessToast = false
+                        withAnimation(.easeInOut(duration: 0.5)) {
+                            currentScreen = .actionSelection
+                        }
                     }
                 )
                 

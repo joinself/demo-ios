@@ -425,23 +425,19 @@ final class MainViewModel: ObservableObject, AccountDelegate {
             .build()
 
         // send chat to server
-        self.sendKMPMessage(message: chatMessage) { messageId, error in
-            completion(messageId, error)
+        self.sendKMPMessage(toAddress: PublicKey(rawValue: serverAddress), message: chatMessage) { messageId, error in
+            print("Message sent: \(messageId) with error = \(error)")
         }
     }
     
-    func sendKMPMessage(message: Message, completion: ((_ messageId: String, _ error: Error?) -> ())? = nil) {
+    func sendKMPMessage(toAddress: PublicKey, message: Message, completion: ((_ messageId: String?, _ error: Error?) -> ())? = nil) {
         Task(priority: .background, operation: {
-//            try await self.account.send(message: message, onAcknowledgement: {msgId, error in
-//                print("message sent: \(msgId)")
-//                if let error = error {
-//                    print("🔐 MainViewModel ❌ message send failed: \(error)")
-//                } else {
-//                    print("🔐 MainViewModel: ✅ message sent successfully with ID: \(msgId)")
-//                    // Message sent successfully, now waiting for server response via message listener
-//                }
-//                completion?(msgId, error)
-//            })
+            do {
+                let msgId = try await self.account?.send(toAddress: toAddress, message: message)
+                completion?(msgId, nil)
+            } catch {
+                completion?(nil, error)
+            }
         })
     }
     
