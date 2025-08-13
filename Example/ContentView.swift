@@ -23,6 +23,7 @@ enum AppScreen: Equatable {
     case registrationIntro
     case registerAccountView
     case serverConnectionSelection
+    case qrCodeReader
     case serverConnection
     case serverConnectionProcessing(serverAddress: String)
     case actionSelection
@@ -136,26 +137,100 @@ struct ContentView: View {
                         self.setCurrentAppScreen(screen: .serverConnection)
                     } else if connectionActionType == .scanQrCodeConnect {
                         // MARK: QRCode Connection
-                        self.showQRScanner = true
+//                        self.showQRScanner = true
+                        self.setCurrentAppScreen(screen: .qrCodeReader)
                     }
                 } onBack: {
                     
                 }
-                .fullScreenCover(isPresented: $showQRScanner, onDismiss: {
-                    
-                }, content: {
-                    QRReaderView(isCodeValid: $isCodeValid, onCode: { code in
-                        print("QRCode: \(code)")
-                    }) { codeData in
-                        print("QRCode: \(codeData)")
-                        viewModel.handleAuthData(data: codeData) { error in
-                            if error == nil {
-                                showQRScanner = false
-                                self.setCurrentAppScreen(screen: .actionSelection)
+//                .fullScreenCover(isPresented: $showQRScanner, onDismiss: {
+//                    
+//                }, content: {
+//                    QRReaderView(isCodeValid: $isCodeValid, onCode: { code in
+//                        print("QRCode: \(code)")
+//                    }) { codeData in
+//                        print("QRCode: \(codeData)")
+//                        viewModel.handleAuthData(data: codeData) { error in
+//                            if error == nil {
+//                                showQRScanner = false
+//                                self.setCurrentAppScreen(screen: .actionSelection)
+//                            }
+//                        }
+//                    }
+//                })
+                
+            case .qrCodeReader:
+                QRCodeReaderView(account: viewModel.getAccount()) { result in
+                    switch result {
+                    case .success(let discoveryData):
+                        let serverAddress = discoveryData.address
+                        let sandbox = discoveryData.sandbox
+                        print("Discovery data: \(discoveryData)")
+                    case .failure(let error):
+                        print("QR Code Error: \(error)")
+                    }
+                }
+                
+            case .serverConnection:
+                ServerConnectionScreen(
+                    onConnectToServer: { serverAddress in
+                        print("Server address: \(serverAddress)")
+                        withAnimation(.easeInOut(duration: 0.5)) {
+                            currentScreen = .serverConnectionProcessing(serverAddress: serverAddress)
+                        }
+                    }) {
+                        self.setCurrentAppScreen(screen: .serverConnectionSelection)
+                    }
+            case .serverConnectionProcessing(let serverAddress):
+                ServerConnectionProcessingScreen(
+                    isConnecting: $viewModel.isConnecting,
+                    connectionError: $viewModel.connectionError,
+                    hasTimedOut: $viewModel.hasTimedOut,
+                    serverAddress: serverAddress,
+                    onConnectionStart: { serverAddress in
+                        print("onConnectionStart: \(serverAddress)")
+                        Task {
+                            await viewModel.connectToSelfServer(serverAddress: serverAddress) { success in
+                                // connection completion
+                                if success {
+                                    // Update server connection state and navigate to action selection
+                                    viewModel.saveServerConnected(isConnected: true)
+                                    viewModel.saveServerAddress(serverAddress: serverAddress)
+                                    // Show success toast since this is first visit after connection
+                                    showConnectionSuccessToast = true
+                                    self.setCurrentAppScreen(screen: .actionSelection)
+                                } else {
+                                    print("Server connection error!")
+                                }
                             }
                         }
+                        
+                    },
+                    onConnectionComplete: {
+                        // Update server connection state and navigate to action selection
+                        // Show success toast since this is first visit after connection
+                        showConnectionSuccessToast = true
+                        self.setCurrentAppScreen(screen: .actionSelection)
+                    },
+                    onGoBack: {
+                        // Reset connection state and go back to server connection screen
+                        self.viewModel.resetUserDefaults()
+                        self.setCurrentAppScreen(screen: .serverConnectionSelection)
                     }
-                })
+                )
+            case .actionSelection:
+                ActionSelectionScreen(
+                    showConnectionSuccess: showConnectionSuccessToast,
+                    onActionSelected: { actionType in
+                        print("🎯 ContentView: User selected action: \(actionType)")
+                        // Reset the connection success toast flag after first visit
+                        showConnectionSuccessToast = false
+                        handleActionSelection(actionType)
+                    }, onBack: {
+                        self.viewModel.resetUserDefaults()
+                        self.setCurrentAppScreen(screen: .serverConnectionSelection)
+                    }
+                )
                 
             default:
                 Text("Current screen: \(currentScreen)")
@@ -627,7 +702,7 @@ struct ContentView: View {
                 ToastMessageView(message: toastMessage)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
             }
-        }.ignoresSafeArea()
+        }//.ignoresSafeArea()
     }
     
     private func setCurrentAppScreen(screen: AppScreen) {

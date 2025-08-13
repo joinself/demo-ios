@@ -222,22 +222,22 @@ final class MainViewModel: ObservableObject, AccountDelegate {
     }
     
     func handleAuthData(data: Data, completion: ((Error?) -> Void)? = nil) {
-//        Task(priority: .background) {
-//            do {
-//                let discoveryData = try await Account.qrCode(data: data)
+        Task(priority: .background) {
+            do {
+                let discoveryData = try await account?.connectWith(qrCode: data)
 //                print("Discovery Data: \(discoveryData)")
 //                self.serverAddress = discoveryData?.address
 //                try await account.connectWith(qrCode: data)
 //                Task { @MainActor in
 //                    completion?(nil)
 //                }
-//            } catch {
-//                print("Handle data error: \(error)")
-//                Task { @MainActor in
-//                    completion?(error)
-//                }
-//            }
-//        }
+            } catch {
+                print("Handle data error: \(error)")
+                Task { @MainActor in
+                    completion?(error)
+                }
+            }
+        }
     }
     
     func handleSigningRequest(signingRequest: SigningRequest) {
@@ -384,8 +384,9 @@ final class MainViewModel: ObservableObject, AccountDelegate {
         }
         
         do {
-//            let connectionResult = try await account.connectWith(address: serverAddress, info: [:])
+            let pk = try await account?.connectWith(address: PublicKey(rawValue: serverAddress), info: [:])
 
+            let success = pk != nil
             DispatchQueue.main.async {
                 // Only proceed if we haven't timed out
                 if self.isConnecting {
@@ -398,7 +399,7 @@ final class MainViewModel: ObservableObject, AccountDelegate {
                     // Wait a moment to show completion, then navigate
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                       //  onConnectionComplete()
-                        completion(true)
+                        completion(success)
                     }
                 }
             }

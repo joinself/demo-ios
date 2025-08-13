@@ -167,6 +167,7 @@ public struct ServerConnectionScreen: View {
                     }
                 }
             }
+            Spacer(minLength: 80)
         }
         .background(Color.white)
     }
