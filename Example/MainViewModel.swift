@@ -385,23 +385,11 @@ final class MainViewModel: ObservableObject, AccountDelegate {
         
         do {
             let pk = try await account?.connectWith(address: PublicKey(rawValue: serverAddress), info: [:])
-
             let success = pk != nil
+            print("Connect to serverAddress = \(serverAddress): \(success)")
             DispatchQueue.main.async {
-                // Only proceed if we haven't timed out
-                if self.isConnecting {
-//                    print("🌐 ServerConnectionProcessing: ✅ Successfully connected to server")
-//                    print("🌐 ServerConnectionProcessing: Connection result: \(connectionResult)")
-
-                    //currentStep = 4 // Completed
-                    self.isConnecting = false
-
-                    // Wait a moment to show completion, then navigate
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                      //  onConnectionComplete()
-                        completion(success)
-                    }
-                }
+                self.isConnecting = !success
+                completion(success)
             }
 
         } catch {
