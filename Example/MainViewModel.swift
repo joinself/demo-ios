@@ -69,6 +69,16 @@ final class MainViewModel: ObservableObject, AccountDelegate {
         case is CredentialResponse:
             let response = message as! CredentialResponse
             print("TODO: Handle credential response.")
+            
+        case is ChatMessage:
+            let chatMessage = message as! ChatMessage
+            //self.handleIncomingChatMessage(chatMessage)
+
+        case is CredentialMessage:
+            let credentialMessage = message as! CredentialMessage
+            self.handleIncomingCredentialMessage(credentialMessage)
+        case is Receipt:
+            let receipt = message as! Receipt
         default:
             print("🎯 ContentView: ❓ Unknown message type: \(type(of: message))")
             break
@@ -311,14 +321,12 @@ final class MainViewModel: ObservableObject, AccountDelegate {
     }
     
     private func handleIncomingCredentialMessage(_ credentialMessage: CredentialMessage) {
-//        let messageContent = credentialMessage.credentials()
-//        let fromAddress = credentialMessage.fromIdentifier()
-//        
-//        print("🎯 ContentView: 💬 Credential message from \(fromAddress): '\(messageContent)'")
-        // Chat messages are informational, no specific action needed
-//        withAnimation(.easeInOut(duration: 0.5)) {
-//            currentScreen = .getCustomCredentialResult(success: true)
-//        }
+        let messageContent = credentialMessage.properties()
+        let fromAddress = credentialMessage.fromAddress()
+        
+        print("🎯 ContentView: 💬 Credential message from \(fromAddress): '\(messageContent)'")
+//         Chat messages are informational, no specific action needed
+        self.notifyAppScreen(screen: .getCustomCredentialResult(success: true))
     }
     
     private func handleVerificationRequest(verificationRequest: VerificationRequest) {

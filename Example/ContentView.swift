@@ -362,6 +362,27 @@ struct ContentView: View {
                     }
                 }
                 
+            case .getCustomCredentialStart:
+                VerifyCustomCredentialsStartScreen {
+                    self.sendCustomCredentialRequest()
+                } onBack: {
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        currentScreen = .actionSelection
+                    }
+                }
+
+            case .getCustomCredentialResult(let success):
+                VerifyCustomCredentialsResultScreen(success: success) {
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        currentScreen = .actionSelection
+                    }
+                } onBack: {
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        currentScreen = .actionSelection
+                    }
+                }
+
+                
             default:
                 Text("Current screen: \(currentScreen)")
                     .foregroundStyle(.black)
