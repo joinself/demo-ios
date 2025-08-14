@@ -28,6 +28,7 @@ enum AppScreen: Equatable {
     case serverConnectionProcessing(serverAddress: String)
     case actionSelection
     case verifyCredential
+    case emailFlow
     case verifyEmailStart
     case verifyEmailResult(success: Bool)
     case verifyDocumentStart
@@ -271,6 +272,95 @@ struct ContentView: View {
                         }
                     }
                 )
+                
+            case .verifyCredential:
+                VerifyCredentialSelectionScreen { credentialActionType in
+                    if credentialActionType == .emailAddress {
+                        // show verify email flow
+                        withAnimation(.easeInOut(duration: 0.5)) {
+                            currentScreen = .verifyEmailStart
+                        }
+                    } else if credentialActionType == .identityDocument {
+                        // show verify document flow
+                        withAnimation(.easeInOut(duration: 0.5)) {
+                            currentScreen = .verifyDocumentStart
+                        }
+                    } else if credentialActionType == .customCredential {
+                        withAnimation(.easeInOut(duration: 0.5)) {
+                            currentScreen = .getCustomCredentialStart
+                        }
+                    }
+                    
+                } onBack: {
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        currentScreen = .actionSelection
+                    }
+                }
+                
+            case .verifyEmailStart:
+                
+                
+                VerifyEmailStartScreen {
+//                    showVerifyEmail = true
+                    self.setCurrentAppScreen(screen: .emailFlow)
+                    
+                } onBack: {
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        currentScreen = .actionSelection
+                    }
+                }
+//                .fullScreenCover(isPresented: $showVerifyEmail, onDismiss: {
+//                    
+//                }, content: {
+//                    EmailFlow(account: viewModel.account, autoDismiss: false, onResult: { success in
+//                        print("Verify email finished = \(success)")
+//                        self.showVerifyEmail = false
+//                        self.setCurrentAppScreen(screen: .verifyEmailResult(success: success))
+//                    })
+//                })
+                
+            case .emailFlow:
+                self_ios_sdk.EmailFlow(account: viewModel.getAccount(), autoDismiss: true, onResult: { success in
+                    print("Verify email finished = \(success)")
+                    self.setCurrentAppScreen(screen: .actionSelection)
+                })
+                
+            case .verifyEmailResult (let success):
+                VerifyEmailResultScreen(success: success) {
+                    setCurrentAppScreen(screen: .actionSelection)
+                } onBack: {
+                    setCurrentAppScreen(screen: .actionSelection)
+                }
+
+            case .verifyDocumentStart:
+                VerifyDocumentStartScreen {
+                    showVerifyDocument = true
+                } onBack: {
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        currentScreen = .actionSelection
+                    }
+                }
+                .fullScreenCover(isPresented: $showVerifyDocument, onDismiss: {
+                    // dismiss view
+                }, content: {
+                    // MARK: - Verify Documents
+                    DocumentFlow(account: viewModel.getAccount(), devMode: true, autoCaptureImage: false, onResult:  { success in
+                        print("Verify document finished: \(success)")
+                        showVerifyDocument = false
+                        setCurrentAppScreen(screen: .verifyDocumentResult(success: success))
+                    })
+                })
+                
+            case .verifyDocumentResult(let success):
+                VerifyDocumentResultScreen(success: success) {
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        currentScreen = .actionSelection
+                    }
+                } onBack: {
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        currentScreen = .actionSelection
+                    }
+                }
                 
             default:
                 Text("Current screen: \(currentScreen)")

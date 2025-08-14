@@ -39,6 +39,40 @@ final class MainViewModel: ObservableObject, AccountDelegate {
     
     func onMessage(message: any self_ios_sdk.Message) {
         print("onMessage: \(message)")
+        switch message {
+        case is CredentialRequest:
+            let credentialRequest = message as! CredentialRequest
+            self.handleCredentialRequest(credentialRequest: credentialRequest)
+
+        case is VerificationRequest:
+            let verificationRequest = message as! VerificationRequest
+            self.handleVerificationRequest(verificationRequest: verificationRequest)
+
+        case is SigningRequest:
+            let signingRequest = message as! SigningRequest
+            print("Received signing request: \(signingRequest.id())")
+            self.handleSigningRequest(signingRequest: signingRequest)
+
+        case is CredentialRequest:
+            let credentialRequest = message as! CredentialRequest
+            self.handleCredentialRequest(credentialRequest: credentialRequest)
+
+        case is VerificationRequest:
+            let verificationRequest = message as! VerificationRequest
+            self.handleVerificationRequest(verificationRequest: verificationRequest)
+
+        case is SigningRequest:
+            let signingRequest = message as! SigningRequest
+            print("Received signing request: \(signingRequest.id())")
+            self.handleSigningRequest(signingRequest: signingRequest)
+
+        case is CredentialResponse:
+            let response = message as! CredentialResponse
+            print("TODO: Handle credential response.")
+        default:
+            print("🎯 ContentView: ❓ Unknown message type: \(type(of: message))")
+            break
+        }
     }
     
     func onDisconnect(errorMessage: String?) {
@@ -297,23 +331,24 @@ final class MainViewModel: ObservableObject, AccountDelegate {
     }
 
     private func handleCredentialRequest(credentialRequest: CredentialRequest) {
-//        let fromAddress = credentialRequest.fromIdentifier()
-//        print("🎯 MainViewModel: 🎫 Credential request from \(fromAddress)")
+        let fromAddress = credentialRequest.fromAddress()
+        print("🎯 MainViewModel: 🎫 Credential request from \(fromAddress)")
         currentCredentialRequest = credentialRequest
         
-//        let emailCredential = credentialRequest.details().first?.types().contains(CredentialType.Email) ?? false
-//        let documentCredential = credentialRequest.details().first?.types().contains(CredentialType.Passport) ?? false
-//        let customCredential = credentialRequest.details().first?.types().contains("CustomerCredential") ?? false
-//        
-//        if emailCredential {
-//            self.notifyAppScreen(screen: .shareEmailStart)
-//        } else if documentCredential {
-//            self.notifyAppScreen(screen: .shareDocumentStart)
-//        } else if customCredential {
-//            self.notifyAppScreen(screen: .shareCredentialCustomStart)
-//        }else {
-//            self.notifyAppScreen(screen: .authStart)
-//        }
+        print("CredentialRequest types: \(credentialRequest.types())")
+        let emailCredential = credentialRequest.types().contains(CredentialType.Email) ?? false
+        let documentCredential = credentialRequest.types().contains(CredentialType.Passport) ?? false
+        let customCredential = credentialRequest.types().contains("CustomerCredential") ?? false
+
+        if emailCredential {
+            self.notifyAppScreen(screen: .shareEmailStart)
+        } else if documentCredential {
+            self.notifyAppScreen(screen: .shareDocumentStart)
+        } else if customCredential {
+            self.notifyAppScreen(screen: .shareCredentialCustomStart)
+        }else {
+            self.notifyAppScreen(screen: .authStart)
+        }
     }
     
     private func notifyAppScreen(screen: AppScreen) {
@@ -427,6 +462,7 @@ final class MainViewModel: ObservableObject, AccountDelegate {
         // send chat to server
         self.sendKMPMessage(toAddress: PublicKey(rawValue: serverAddress), message: chatMessage) { messageId, error in
             print("Message sent: \(messageId) with error = \(error)")
+            completion(messageId ?? "", error)
         }
     }
     
