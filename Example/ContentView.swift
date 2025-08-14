@@ -47,6 +47,7 @@ enum AppScreen: Equatable {
     case docSignStart
     case docSignResult(success: Bool)
     case backupStart
+    case backupFlow
     case backupResult(success: Bool)
     case restoreStart
     case restoreResult(success: Bool)
@@ -381,7 +382,55 @@ struct ContentView: View {
                         currentScreen = .actionSelection
                     }
                 }
-
+                
+            case .backupStart:
+                BackupAccountStartScreen(isProcessing: $isBackingUp) {
+                    self.setCurrentAppScreen(screen: .backupFlow)
+//                    self.isBackingUp = true
+//                    viewModel.backup { backupFile in
+//                        // open share extension to save file
+//                        if let url = backupFile {
+//                            fileToShareURLs = [url]
+//                        }
+//                        self.isBackingUp = false
+//                        
+//                        withAnimation(.easeInOut(duration: 0.5)) {
+//                            currentScreen = .backupResult(success: backupFile != nil)
+//                        }
+//                    }
+                } onBack: {
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        currentScreen = .actionSelection
+                    }
+                }
+                
+            case .backupFlow:
+                self_ios_sdk.BackupFlow(account: viewModel.getAccount(), iCloudContainerIdentifier: "iCloud.DevApp", onComplete: { result in
+                    switch result {
+                    case .success:
+                        print("Backup completed!")
+                    case .failure(let error):
+                        print("Backup failed: \(error)")
+                    }
+                })
+            
+            case .backupResult(let success):
+                BackupAccountResultScreen(success: success) {
+                    // share backup file
+                    showShareSheet = true
+                } onBack: {
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        currentScreen = .actionSelection
+                    }
+                }
+                .sheet(isPresented: $showShareSheet) {
+                    ShareSheet(items: fileToShareURLs) {
+                        self.showShareSheet = false
+                        withAnimation(.easeInOut(duration: 0.5)) {
+                            currentScreen = .actionSelection
+                        }
+                    }
+                }
                 
             default:
                 Text("Current screen: \(currentScreen)")

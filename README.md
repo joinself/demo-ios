@@ -43,6 +43,19 @@ cd ios/Example/
 open Example.xcodeproj
 ```
 
+### Backup flơ
+ Self sdk will automatic backup your pds. You just need to configure your iCloud capability and pass the iCloud identifier to the BackupFlow view.
+ ```
+   self_ios_sdk.BackupFlow(account: viewModel.getAccount(), iCloudContainerIdentifier: "iCloud.DevApp", onComplete: { result in
+           switch result {
+           case .success:
+               print("Backup completed!")
+           case .failure(let error):
+               print("Backup failed: \(error)")
+           }
+      })
+ ```
+
 ## Setup Server
 
 For the Self Demo application to function fully (e.g., to connect for credential verification and sharing), a backend server component needs to be running. 
