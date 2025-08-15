@@ -75,22 +75,7 @@ struct ContentView: View {
     // Current verification request (needed to send response back)
     @State private var currentVerificationRequest: VerificationRequest? = nil
     
-    @State private var showVerifyEmail: Bool = false
     @State private var showVerifyDocument: Bool = false
-    
-    // backup & restore
-    @State private var isBackingUp = false
-//    @State private var showDocumentPicker = false
-    @State private var selectedFileName: String?
-    @State private var selectedFileURLs: [URL] = []
-    @State private var fileToShareURLs: [URL] = []
-    @State private var showShareSheet = false
-    
-    @State private var showQRScanner = false
-    @State private var isCodeValid = false
-    
-    @State private var isRestoring = false
-    @State private var isRegistering = false
     
     var body: some View {
         ZStack {
@@ -106,17 +91,8 @@ struct ContentView: View {
                     determineNextScreen()
                 })
             case .registrationIntro:
-                RegistrationIntroScreen(isProcessing: $isRegistering) {
+                RegistrationIntroScreen {
                     self.setCurrentAppScreen(screen: .registerAccountView)
-                    // start registration
-//                    self.isRegistering = true
-//                    viewModel.registerAccount { success in
-//                        viewModel.accountRegistered = success
-//                        self.isRegistering = success
-//                        withAnimation(.easeInOut(duration: 0.5)) {
-//                            currentScreen = .serverConnectionSelection
-//                        }
-//                    }
                 } onRestore: {
                     withAnimation(.easeInOut(duration: 0.5)) {
                         currentScreen = .restoreStart
@@ -146,21 +122,6 @@ struct ContentView: View {
                 } onBack: {
                     
                 }
-//                .fullScreenCover(isPresented: $showQRScanner, onDismiss: {
-//                    
-//                }, content: {
-//                    QRReaderView(isCodeValid: $isCodeValid, onCode: { code in
-//                        print("QRCode: \(code)")
-//                    }) { codeData in
-//                        print("QRCode: \(codeData)")
-//                        viewModel.handleAuthData(data: codeData) { error in
-//                            if error == nil {
-//                                showQRScanner = false
-//                                self.setCurrentAppScreen(screen: .actionSelection)
-//                            }
-//                        }
-//                    }
-//                })
                 
             case .qrCodeReader:
                 QRCodeReaderView(account: viewModel.getAccount()) { result in
@@ -303,7 +264,6 @@ struct ContentView: View {
                 
                 
                 VerifyEmailStartScreen {
-//                    showVerifyEmail = true
                     self.setCurrentAppScreen(screen: .emailFlow)
                     
                 } onBack: {
@@ -311,15 +271,6 @@ struct ContentView: View {
                         currentScreen = .actionSelection
                     }
                 }
-//                .fullScreenCover(isPresented: $showVerifyEmail, onDismiss: {
-//                    
-//                }, content: {
-//                    EmailFlow(account: viewModel.account, autoDismiss: false, onResult: { success in
-//                        print("Verify email finished = \(success)")
-//                        self.showVerifyEmail = false
-//                        self.setCurrentAppScreen(screen: .verifyEmailResult(success: success))
-//                    })
-//                })
                 
             case .emailFlow:
                 self_ios_sdk.EmailFlow(account: viewModel.getAccount(), autoDismiss: true, onResult: { success in
@@ -385,24 +336,11 @@ struct ContentView: View {
                 }
                 
             case .backupStart:
-                BackupAccountStartScreen(isProcessing: $isBackingUp) {
+                BackupAccountStartScreen {
                     self.setCurrentAppScreen(screen: .backupFlow)
-//                    self.isBackingUp = true
-//                    viewModel.backup { backupFile in
-//                        // open share extension to save file
-//                        if let url = backupFile {
-//                            fileToShareURLs = [url]
-//                        }
-//                        self.isBackingUp = false
-//                        
-//                        withAnimation(.easeInOut(duration: 0.5)) {
-//                            currentScreen = .backupResult(success: backupFile != nil)
-//                        }
-//                    }
+
                 } onBack: {
-                    withAnimation(.easeInOut(duration: 0.5)) {
-                        currentScreen = .actionSelection
-                    }
+                    self.setCurrentAppScreen(screen: .actionSelection)
                 }
                 
             case .backupFlow:
@@ -418,55 +356,19 @@ struct ContentView: View {
             case .backupResult(let success):
                 BackupAccountResultScreen(success: success) {
                     // share backup file
-                    showShareSheet = true
+                    self.setCurrentAppScreen(screen: .actionSelection)
                 } onBack: {
-                    withAnimation(.easeInOut(duration: 0.5)) {
-                        currentScreen = .actionSelection
-                    }
-                }
-                .sheet(isPresented: $showShareSheet) {
-                    ShareSheet(items: fileToShareURLs) {
-                        self.showShareSheet = false
-                        withAnimation(.easeInOut(duration: 0.5)) {
-                            currentScreen = .actionSelection
-                        }
-                    }
+                    self.setCurrentAppScreen(screen: .actionSelection)
                 }
             
             case .restoreStart:
-                RestoreAccountStartScreen(isProcessing: $isRestoring) {
-//                    showDocumentPicker = true
+                RestoreAccountStartScreen {
                     self.setCurrentAppScreen(screen: .restoreFlow)
                 } onBack: {
                     withAnimation(.easeInOut(duration: 0.5)) {
                         currentScreen = .registrationIntro
                     }
                 }
-                .onChange(of: self.selectedFileURLs, perform: { newValue in
-                    print("Files change: \(newValue)")
-                    if let url = newValue.first, url.pathExtension == "self_backup" {
-                        // handle restore account
-                        if url.startAccessingSecurityScopedResource() {
-                            print("startAccessingSecurityScopedResource")
-                        }
-                        
-                        // 1. Do liveness to get liveness's selfie image
-//                        SelfSDK.showLiveness(account: viewModel.account, showIntroduction: true, autoDismiss: true, isVerificationRequired: false, onResult: { selfieImageData, credentials, error in
-//                            print("showLivenessCheck credentials: \(credentials)")
-//                            self.isRestoring = true
-//                            viewModel.restore(selfieData: selfieImageData, backupFile: url) { success in
-//                                print("Restore account finished: \(success)")
-//                                self.isRestoring = false
-//                                withAnimation(.easeInOut(duration: 0.5)) {
-//                                    currentScreen = .restoreResult(success: success)
-//                                }
-//                            }
-//                        })
-                    }
-                })
-//                .sheet(isPresented: $showDocumentPicker) {
-//                    DocumentPicker(selectedFileName: $selectedFileName, selectedFileURLs: $selectedFileURLs)
-//                }
             case .restoreFlow:
                 self_ios_sdk.RestoreFlow(account: viewModel.getAccount(), iCloudContainerIdentifier: iCloudIdentifier, onComplete: { result in
                     print("RestoreFlow complete: \(result)")
