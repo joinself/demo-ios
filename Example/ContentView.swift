@@ -50,11 +50,12 @@ enum AppScreen: Equatable {
     case backupFlow
     case backupResult(success: Bool)
     case restoreStart
+    case restoreFlow
     case restoreResult(success: Bool)
 }
 
 struct ContentView: View {
-    
+    private let iCloudIdentifier = "iCloud.DevApp"
     @EnvironmentObject var viewModel: MainViewModel
     @State private var currentScreen: AppScreen = .initialization
     
@@ -79,7 +80,7 @@ struct ContentView: View {
     
     // backup & restore
     @State private var isBackingUp = false
-    @State private var showDocumentPicker = false
+//    @State private var showDocumentPicker = false
     @State private var selectedFileName: String?
     @State private var selectedFileURLs: [URL] = []
     @State private var fileToShareURLs: [URL] = []
@@ -405,7 +406,7 @@ struct ContentView: View {
                 }
                 
             case .backupFlow:
-                self_ios_sdk.BackupFlow(account: viewModel.getAccount(), iCloudContainerIdentifier: "iCloud.DevApp", onComplete: { result in
+                self_ios_sdk.BackupFlow(account: viewModel.getAccount(), iCloudContainerIdentifier: iCloudIdentifier, onComplete: { result in
                     switch result {
                     case .success:
                         print("Backup completed!")
@@ -431,11 +432,67 @@ struct ContentView: View {
                         }
                     }
                 }
+            
+            case .restoreStart:
+                RestoreAccountStartScreen(isProcessing: $isRestoring) {
+//                    showDocumentPicker = true
+                    self.setCurrentAppScreen(screen: .restoreFlow)
+                } onBack: {
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        currentScreen = .registrationIntro
+                    }
+                }
+                .onChange(of: self.selectedFileURLs, perform: { newValue in
+                    print("Files change: \(newValue)")
+                    if let url = newValue.first, url.pathExtension == "self_backup" {
+                        // handle restore account
+                        if url.startAccessingSecurityScopedResource() {
+                            print("startAccessingSecurityScopedResource")
+                        }
+                        
+                        // 1. Do liveness to get liveness's selfie image
+//                        SelfSDK.showLiveness(account: viewModel.account, showIntroduction: true, autoDismiss: true, isVerificationRequired: false, onResult: { selfieImageData, credentials, error in
+//                            print("showLivenessCheck credentials: \(credentials)")
+//                            self.isRestoring = true
+//                            viewModel.restore(selfieData: selfieImageData, backupFile: url) { success in
+//                                print("Restore account finished: \(success)")
+//                                self.isRestoring = false
+//                                withAnimation(.easeInOut(duration: 0.5)) {
+//                                    currentScreen = .restoreResult(success: success)
+//                                }
+//                            }
+//                        })
+                    }
+                })
+//                .sheet(isPresented: $showDocumentPicker) {
+//                    DocumentPicker(selectedFileName: $selectedFileName, selectedFileURLs: $selectedFileURLs)
+//                }
+            case .restoreFlow:
+                self_ios_sdk.RestoreFlow(account: viewModel.getAccount(), iCloudContainerIdentifier: iCloudIdentifier, onComplete: { result in
+                    print("RestoreFlow complete: \(result)")
+                    switch result {
+                    case .success:
+                        self.setCurrentAppScreen(screen: .actionSelection)
+                    case .failure( let error):
+                        // show restore error
+                        print("TODO: display toast message for restore error: \(error)")
+                    }
+                })
                 
+            
+            case .restoreResult(let success):
+                RestoreAccountResultScreen(success: success) {
+                    self.setCurrentAppScreen(screen: .actionSelection)
+                } onBack: {
+                    
+                }
+
             default:
                 Text("Current screen: \(currentScreen)")
                     .foregroundStyle(.black)
             }
+                
+
             
 //            Group {
 //                switch currentScreen {
