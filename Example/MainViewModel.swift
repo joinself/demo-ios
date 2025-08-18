@@ -130,9 +130,6 @@ final class MainViewModel: ObservableObject, AccountDelegate {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             self.isInitialized = true
         }
-        
-        // add listener
-//        setupMessageListener()
     }
     
     func getAccount() -> Account {

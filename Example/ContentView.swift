@@ -375,7 +375,7 @@ struct ContentView: View {
                     print("RestoreFlow complete: \(result)")
                     switch result {
                     case .success:
-                        self.setCurrentAppScreen(screen: .actionSelection)
+                        self.setCurrentAppScreen(screen: .serverConnectionSelection)
                     case .failure( let error):
                         // show restore error
                         print("TODO: display toast message for restore error: \(error)")
@@ -862,7 +862,7 @@ struct ContentView: View {
                 ToastMessageView(message: toastMessage)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
             }
-        }//.ignoresSafeArea()
+        }
     }
     
     private func setCurrentAppScreen(screen: AppScreen) {
