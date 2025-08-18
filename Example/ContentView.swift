@@ -348,6 +348,7 @@ struct ContentView: View {
                     switch result {
                     case .success:
                         print("Backup completed!")
+                        self.setCurrentAppScreen(screen: .actionSelection)
                     case .failure(let error):
                         print("Backup failed: \(error)")
                     }
