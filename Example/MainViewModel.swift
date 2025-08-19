@@ -109,7 +109,7 @@ final class MainViewModel: ObservableObject, AccountDelegate {
     private var connectedServerAddress: String?
     
     var currentCredentialRequest: CredentialRequest? = nil
-    private var currentVerificationRequest: VerificationRequest? = nil
+    var currentVerificationRequest: VerificationRequest? = nil
     
     init() {
         // Initialize SDK
@@ -327,9 +327,9 @@ final class MainViewModel: ObservableObject, AccountDelegate {
     }
     
     private func handleVerificationRequest(verificationRequest: VerificationRequest) {
-//        let fromAddress = verificationRequest.fromIdentifier()
-//        print("🎯 MainViewModel: 🎫 Verification request from \(fromAddress)")
-//        currentVerificationRequest = verificationRequest
+        let fromAddress = verificationRequest.fromAddress().getRawValue()
+        print("🎯 MainViewModel: 🎫 Verification request from \(fromAddress)")
+        currentVerificationRequest = verificationRequest
         
         // FIXME: Currently, we just assumed that the verification is document signing request
         self.notifyAppScreen(screen: .docSignStart)
