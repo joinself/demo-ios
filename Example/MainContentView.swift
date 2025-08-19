@@ -67,12 +67,12 @@ struct MainContentView: View {
             .buttonStyle(.borderedProminent)
             
             Button {
-                SelfSDK.verifyEmail(account: viewModel.account, transitionAsModal: true) { success in
-                    print("Verify email finished: \(success)")
-                    if success {
-                        self.viewModel.reloadCredentialItems()
-                    }
-                }
+//                SelfSDK.verifyEmail(account: viewModel.account, transitionAsModal: true) { success in
+//                    print("Verify email finished: \(success)")
+//                    if success {
+//                        //self.viewModel.reloadCredentialItems()
+//                    }
+//                }
             } label: {
                 Text("Verify Email Without Prompt Flow")
             }
@@ -115,7 +115,7 @@ struct MainContentView: View {
             List {
                 // display credentials here!
                 ForEach(viewModel.credentialItems) { credentialItem in
-                    if let value = credentialItem.claims.first?.value() {
+                    if let value = credentialItem.claims.first {
                         Text(value)
                             .foregroundStyle(Color.white)
                     }
@@ -127,26 +127,27 @@ struct MainContentView: View {
         .fullScreenCover(isPresented: $showVerifyDocument, onDismiss: {
             // dismiss view
         }, content: {
-            DocumentFlow(account: viewModel.account, autoCaptureImage: false, onResult:  { success in
-                print("Verify document finished: \(success)")
-                showVerifyDocument = false
-                // reload view to display document's credential
-                if success {
-                    self.viewModel.reloadCredentialItems()
-                }
-            })
+            Text("Document Flow")
+//            DocumentFlow(account: viewModel.account, autoCaptureImage: false, onResult:  { success in
+//                print("Verify document finished: \(success)")
+//                showVerifyDocument = false
+//                // reload view to display document's credential
+//                if success {
+//                    self.viewModel.reloadCredentialItems()
+//                }
+//            })
         })
-        .fullScreenCover(isPresented: $showVerifyEmail, onDismiss: {
-            
-        }, content: {
-            EmailFlow(account: viewModel.account, autoDismiss: false, onResult: { success in
-                print("Verify email finished = \(success)")
-                self.showVerifyEmail = false
-                if success {
-                    self.viewModel.reloadCredentialItems()
-                }
-            })
-        })
+//        .fullScreenCover(isPresented: $showVerifyEmail, onDismiss: {
+//            
+//        }, content: {
+//            EmailFlow(account: viewModel.account, autoDismiss: false, onResult: { success in
+//                print("Verify email finished = \(success)")
+//                self.showVerifyEmail = false
+//                if success {
+//                    self.viewModel.reloadCredentialItems()
+//                }
+//            })
+//        })
         .fullScreenCover(isPresented: $showQRScanner, onDismiss: {
             
         }, content: {
@@ -175,14 +176,14 @@ struct MainContentView: View {
                 }
                 
                 // 1. Do liveness to get liveness's selfie image
-                SelfSDK.showLiveness(account: viewModel.account, showIntroduction: true, autoDismiss: true, isVerificationRequired: false, onResult: { selfieImageData, credentials, error in
-                    print("showLivenessCheck credentials: \(credentials)")
-                    isRestoring = true
-                    viewModel.restore(selfieData: selfieImageData, backupFile: backupFile) { success in
-                        print("Restore account finished: \(success)")
-                        isRestoring = false
-                    }
-                })
+//                SelfSDK.showLiveness(account: viewModel.account, showIntroduction: true, autoDismiss: true, isVerificationRequired: false, onResult: { selfieImageData, credentials, error in
+//                    print("showLivenessCheck credentials: \(credentials)")
+//                    isRestoring = true
+//                    viewModel.restore(selfieData: selfieImageData, backupFile: backupFile) { success in
+//                        print("Restore account finished: \(success)")
+//                        isRestoring = false
+//                    }
+//                })
             }
         })
         .sheet(isPresented: $showDocumentPicker) {

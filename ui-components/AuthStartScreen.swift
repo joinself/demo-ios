@@ -69,6 +69,7 @@ public struct AuthStartScreen: View {
                         .modifier(ButtonCancelModifier())
                 }
             }
+            .hidden()
             .padding(.horizontal, 20)
             .padding(.bottom, 20)
             .background(Color.white)

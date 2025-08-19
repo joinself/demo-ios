@@ -13,6 +13,7 @@ import ui_components
 struct ExampleApp: App {
     
     @ObservedObject var viewModel: MainViewModel = MainViewModel()
+    @SwiftUI.Environment(\.scenePhase) private var scenePhase
     
     init () {
         SelfSDK.initialize {
@@ -27,5 +28,17 @@ struct ExampleApp: App {
             ContentView()
                 .environmentObject(viewModel)
         }
+        .onChange(of: scenePhase) { newPhase in
+                    switch newPhase {
+                    case .active:
+                        print("App is active")
+                    case .inactive:
+                        print("App is inactive")
+                    case .background:
+                        print("App moved to background")
+                    @unknown default:
+                        print("Unexpected new phase")
+                    }
+                }
     }
 }

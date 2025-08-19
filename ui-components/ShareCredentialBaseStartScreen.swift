@@ -90,6 +90,7 @@ public struct ShareCredentialBaseStartScreen: View {
                         .modifier(ButtonCancelModifier())
                 }
             }
+            .hidden()
             .padding(.horizontal, 20)
             .padding(.bottom, 20)
             .background(Color.white)
