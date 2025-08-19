@@ -70,7 +70,7 @@ struct ContentView: View {
     @State private var toastMessage: String = ""
     
     // Current credential request (needed to send response back)
-    @State private var currentCredentialRequest: CredentialRequest? = nil
+//    @State private var currentCredentialRequest: CredentialRequest? = nil
     
     // Current verification request (needed to send response back)
     @State private var currentVerificationRequest: VerificationRequest? = nil
@@ -212,19 +212,37 @@ struct ContentView: View {
                 )
                 
             case .authStart:
-                AuthStartScreen(
-                    onStartAuthentication: {
-                        startAuthenticationLivenessCheck()
-                    }, onRejectAuthentication: {
-                        // reject authentication
-                        viewModel.responseToCredentialRequest(credentialRequest: nil, responseStatus: .rejected) { messageId, error in
-                            if error == nil {
-                                self.setCurrentAppScreen(screen: .actionSelection)
-                                showToastMessage("Authentication rejected!")
+                BaseMessageView {
+                    AuthStartScreen(
+                        onStartAuthentication: {
+                            startAuthenticationLivenessCheck()
+                        }, onRejectAuthentication: {
+                            // reject authentication
+                            viewModel.responseToCredentialRequest(credentialRequest: nil, responseStatus: .rejected) { messageId, error in
+                                if error == nil {
+                                    self.setCurrentAppScreen(screen: .actionSelection)
+                                    showToastMessage("Authentication rejected!")
+                                }
+                            }
+                        }
+                    )
+                    if let currentCredentialRequest = viewModel.currentCredentialRequest {
+                        self_ios_sdk.MessageView(account: viewModel.getAccount(), message: currentCredentialRequest) { result in
+                            switch result {
+                            case .success (let status):
+                                if status == MessageStatus.accepted.rawValue {
+                                    self.setCurrentAppScreen(screen: .authResult(success: true))
+                                } else if status == MessageStatus.rejected.rawValue {
+                                    self.setCurrentAppScreen(screen: .actionSelection)
+                                    self.showToastMessage("Authentication rejected!")
+                                }
+                            case .failure(let error):
+                                print("Action failed: \(error)")
                             }
                         }
                     }
-                )
+                }
+                
             case .authResult(let success):
                 AuthResultScreen(success: success,
                     onContinue: {

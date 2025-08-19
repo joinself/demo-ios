@@ -108,7 +108,7 @@ final class MainViewModel: ObservableObject, AccountDelegate {
     private var isServerConnected: Bool = false
     private var connectedServerAddress: String?
     
-    private var currentCredentialRequest: CredentialRequest? = nil
+    var currentCredentialRequest: CredentialRequest? = nil
     private var currentVerificationRequest: VerificationRequest? = nil
     
     init() {
