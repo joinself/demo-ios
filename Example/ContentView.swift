@@ -131,7 +131,7 @@ struct ContentView: View {
                         let sandbox = discoveryData.sandbox
                         print("Discovery data: \(discoveryData)")
                         Task {
-                            await viewModel.connectToSelfServer(serverAddress: serverAddress.getRawValue()) { success in
+                            await viewModel.connectToSelfServer(discoveryData: discoveryData) { success in
                                 // connection completion
                                 if success {
                                     // Update server connection state and navigate to action selection

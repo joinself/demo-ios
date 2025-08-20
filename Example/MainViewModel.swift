@@ -445,6 +445,42 @@ final class MainViewModel: ObservableObject, AccountDelegate {
         }
     }
     
+    func connectToSelfServer(discoveryData: DiscoveryData, completion: @escaping((Bool) -> Void)) async {
+        guard let qrCode = discoveryData.qrCode else {
+            print("QrCode is missing.")
+            return
+        }
+        print("🌐 ServerConnectionProcessing: Connecting to Self server with address: \(discoveryData.address)")
+        self.serverAddress = discoveryData.address.getRawValue()
+        
+        // Check if we already timed out
+        if !isConnecting {
+            print("🌐 ServerConnectionProcessing: Connection attempt cancelled due to timeout")
+            return
+        }
+        
+        do {
+            let pk = try await account?.connectWith(qrCode: qrCode)
+            let success = pk != nil
+            print("Connect to serverAddress = \(serverAddress): \(success)")
+            DispatchQueue.main.async {
+                self.isConnecting = !success
+                completion(success)
+            }
+
+        } catch {
+            print("🌐 ServerConnectionProcessing: ❌ Failed to connect to server: \(error)")
+
+            DispatchQueue.main.async {
+                // Only set error if we haven't already timed out
+                if self.isConnecting {
+                    self.connectionError = "Failed to connect: \(error.localizedDescription)"
+                    self.isConnecting = false
+                }
+            }
+        }
+    }
+    
     func notifyServerForRequest(message: String, completion: @escaping((String, Error?) -> Void)) {
         guard let serverAddress = serverAddress else {
             print("serverAddress is nil.")
