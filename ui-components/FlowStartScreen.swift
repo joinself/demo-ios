@@ -15,14 +15,16 @@ public struct FlowStartScreen: View {
     let onOK: () -> Void
     let onCancel: () -> Void
     let onBack: (() -> Void)?
+    let showButton: Bool
     
-    public init(headlineIcon: Image, title: String, subtitle: String, cardTitle: String, cardSubtitle: String, cardIcon: Image, onOK: @escaping () -> Void, onCancel: @escaping () -> Void, onBack: (() -> Void)? = nil) {
+    public init(headlineIcon: Image, title: String, subtitle: String, cardTitle: String, cardSubtitle: String, cardIcon: Image, showButton: Bool = true, onOK: @escaping () -> Void, onCancel: @escaping () -> Void, onBack: (() -> Void)? = nil) {
         self.headlineIcon = headlineIcon
         self.title = title
         self.subtitle = subtitle
         self.cardTitle = cardTitle
         self.cardSubtitle = cardSubtitle
         self.cardIcon = cardIcon
+        self.showButton = showButton
         self.onOK = onOK
         self.onCancel = onCancel
         self.onBack = onBack
@@ -76,11 +78,13 @@ public struct FlowStartScreen: View {
             
             // Fixed button at bottom
             VStack {
-                Button(action: {
-                    onOK()
-                }) {
-                    Text("Start")
-                        .modifier(ButtonOKModifier())
+                if showButton {
+                    Button(action: {
+                        onOK()
+                    }) {
+                        Text("Start")
+                            .modifier(ButtonOKModifier())
+                    }
                 }
             }
             .padding(.horizontal, 20)
@@ -95,7 +99,7 @@ public struct FlowStartScreen: View {
 
 #Preview {
     VStack {
-        FlowStartScreen(headlineIcon: Image("private_connectivity", bundle: ResourceHelper.bundle), title: "Title", subtitle: "Subtitle", cardTitle: "Card Title", cardSubtitle: "Card description", cardIcon: Image(systemName: "faceid")) {
+        FlowStartScreen(headlineIcon: Image("private_connectivity", bundle: ResourceHelper.bundle), title: "Title", subtitle: "Subtitle", cardTitle: "Card Title", cardSubtitle: "Card description", cardIcon: Image(systemName: "faceid"), showButton: false) {
             
         } onCancel: {
             

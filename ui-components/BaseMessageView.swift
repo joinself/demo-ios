@@ -27,8 +27,6 @@ public struct BaseMessageView<Content: View>: View {
     BaseMessageView {
         AuthStartScreen {
             
-        } onRejectAuthentication: {
-            
         }
     }
 }
