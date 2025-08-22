@@ -57,7 +57,6 @@ enum AppScreen: Equatable {
 struct ContentView: View {
     private let iCloudIdentifier = "iCloud.DevApp"
     @EnvironmentObject var viewModel: MainViewModel
-    @State private var currentScreen: AppScreen = .initialization
     
     // Track whether to show connection success toast on ActionSelectionScreen
     @State private var showConnectionSuccessToast: Bool = false
@@ -69,12 +68,6 @@ struct ContentView: View {
     @State private var showToast: Bool = false
     @State private var toastMessage: String = ""
     
-    // Current credential request (needed to send response back)
-    //    @State private var currentCredentialRequest: CredentialRequest? = nil
-    
-    // Current verification request (needed to send response back)
-    @State private var currentVerificationRequest: VerificationRequest? = nil
-    
     @State private var showVerifyDocument: Bool = false
     
     var body: some View {
@@ -84,7 +77,7 @@ struct ContentView: View {
                 setCurrentAppScreen(screen: appScreen)
             }
             
-            switch currentScreen {
+            switch viewModel.appScreen {
                 
             case .initialization:
                 InitializeSDKScreen(isInitialized: $viewModel.isInitialized, onInitializationComplete: {
@@ -94,9 +87,7 @@ struct ContentView: View {
                 RegistrationIntroScreen {
                     self.setCurrentAppScreen(screen: .registerAccountView)
                 } onRestore: {
-                    withAnimation(.easeInOut(duration: 0.5)) {
-                        currentScreen = .restoreStart
-                    }
+                    self.setCurrentAppScreen(screen: .restoreStart)
                 }
                 
             case .registerAccountView:
@@ -154,9 +145,7 @@ struct ContentView: View {
                 ServerConnectionScreen(
                     onConnectToServer: { serverAddress in
                         print("Server address: \(serverAddress)")
-                        withAnimation(.easeInOut(duration: 0.5)) {
-                            currentScreen = .serverConnectionProcessing(serverAddress: serverAddress)
-                        }
+                        self.setCurrentAppScreen(screen: .serverConnectionProcessing(serverAddress: serverAddress))
                     }) {
                         self.setCurrentAppScreen(screen: .serverConnectionSelection)
                     }
@@ -213,19 +202,9 @@ struct ContentView: View {
                 
             case .authStart:
                 BaseMessageView {
-                    AuthStartScreen(
-                        onStartAuthentication: {
-                            startAuthenticationLivenessCheck()
-                        }, onRejectAuthentication: {
-                            // reject authentication
-                            viewModel.responseToCredentialRequest(credentialRequest: nil, responseStatus: .rejected) { messageId, error in
-                                if error == nil {
-                                    self.setCurrentAppScreen(screen: .actionSelection)
-                                    showToastMessage("Authentication rejected!")
-                                }
-                            }
-                        }
-                    )
+                    AuthStartScreen {
+                        self.setCurrentAppScreen(screen: .actionSelection)
+                    }
                     if let currentCredentialRequest = viewModel.currentCredentialRequest {
                         self_ios_sdk.MessageView(account: viewModel.getAccount(), message: currentCredentialRequest) { result in
                             switch result {
@@ -248,9 +227,7 @@ struct ContentView: View {
                                  onContinue: {
                     // Return to action selection (don't show connection success toast)
                     showConnectionSuccessToast = false
-                    withAnimation(.easeInOut(duration: 0.5)) {
-                        currentScreen = .actionSelection
-                    }
+                    self.setCurrentAppScreen(screen: .actionSelection)
                 }
                 )
                 
@@ -258,24 +235,16 @@ struct ContentView: View {
                 VerifyCredentialSelectionScreen { credentialActionType in
                     if credentialActionType == .emailAddress {
                         // show verify email flow
-                        withAnimation(.easeInOut(duration: 0.5)) {
-                            currentScreen = .verifyEmailStart
-                        }
+                        self.setCurrentAppScreen(screen: .verifyEmailStart)
                     } else if credentialActionType == .identityDocument {
                         // show verify document flow
-                        withAnimation(.easeInOut(duration: 0.5)) {
-                            currentScreen = .verifyDocumentStart
-                        }
+                        self.setCurrentAppScreen(screen: .verifyDocumentStart)
                     } else if credentialActionType == .customCredential {
-                        withAnimation(.easeInOut(duration: 0.5)) {
-                            currentScreen = .getCustomCredentialStart
-                        }
+                        self.setCurrentAppScreen(screen: .getCustomCredentialStart)
                     }
                     
                 } onBack: {
-                    withAnimation(.easeInOut(duration: 0.5)) {
-                        currentScreen = .actionSelection
-                    }
+                    self.setCurrentAppScreen(screen: .actionSelection)
                 }
                 
             case .verifyEmailStart:
@@ -285,9 +254,7 @@ struct ContentView: View {
                     self.setCurrentAppScreen(screen: .emailFlow)
                     
                 } onBack: {
-                    withAnimation(.easeInOut(duration: 0.5)) {
-                        currentScreen = .actionSelection
-                    }
+                    self.setCurrentAppScreen(screen: .actionSelection)
                 }
                 
             case .emailFlow:
@@ -307,9 +274,7 @@ struct ContentView: View {
                 VerifyDocumentStartScreen {
                     showVerifyDocument = true
                 } onBack: {
-                    withAnimation(.easeInOut(duration: 0.5)) {
-                        currentScreen = .actionSelection
-                    }
+                    self.setCurrentAppScreen(screen: .actionSelection)
                 }
                 .fullScreenCover(isPresented: $showVerifyDocument, onDismiss: {
                     // dismiss view
@@ -324,33 +289,23 @@ struct ContentView: View {
                 
             case .verifyDocumentResult(let success):
                 VerifyDocumentResultScreen(success: success) {
-                    withAnimation(.easeInOut(duration: 0.5)) {
-                        currentScreen = .actionSelection
-                    }
+                    self.setCurrentAppScreen(screen: .actionSelection)
                 } onBack: {
-                    withAnimation(.easeInOut(duration: 0.5)) {
-                        currentScreen = .actionSelection
-                    }
+                    self.setCurrentAppScreen(screen: .actionSelection)
                 }
                 
             case .getCustomCredentialStart:
                 VerifyCustomCredentialsStartScreen {
                     self.sendCustomCredentialRequest()
                 } onBack: {
-                    withAnimation(.easeInOut(duration: 0.5)) {
-                        currentScreen = .actionSelection
-                    }
+                    self.setCurrentAppScreen(screen: .actionSelection)
                 }
                 
             case .getCustomCredentialResult(let success):
                 VerifyCustomCredentialsResultScreen(success: success) {
-                    withAnimation(.easeInOut(duration: 0.5)) {
-                        currentScreen = .actionSelection
-                    }
+                    self.setCurrentAppScreen(screen: .actionSelection)
                 } onBack: {
-                    withAnimation(.easeInOut(duration: 0.5)) {
-                        currentScreen = .actionSelection
-                    }
+                    self.setCurrentAppScreen(screen: .actionSelection)
                 }
                 
             case .shareCredential:
@@ -367,9 +322,7 @@ struct ContentView: View {
                         self.requestCredentialCustomRequest()
                     }
                 } onBack: {
-                    withAnimation(.easeInOut(duration: 0.5)) {
-                        currentScreen = .actionSelection
-                    }
+                    self.setCurrentAppScreen(screen: .actionSelection)
                 }
             case .shareEmailStart:
                 ShareEmailCredentialStartScreen {
@@ -389,9 +342,7 @@ struct ContentView: View {
                 
             case .shareEmailResult(let success):
                 ShareEmailCredentialResultScreen(success: success) {
-                    withAnimation(.easeInOut(duration: 0.5)) {
-                        currentScreen = .actionSelection
-                    }
+                    self.setCurrentAppScreen(screen: .actionSelection)
                 }
                 
             case .shareDocumentStart:
@@ -432,17 +383,13 @@ struct ContentView: View {
                 } onDeny: {
                     //                    viewModel.responseToCredentialRequest(credentialRequest: currentCredentialRequest, responseStatus: .rejected)
                 } onBack: {
-                    withAnimation(.easeInOut(duration: 0.5)) {
-                        currentScreen = .actionSelection
-                    }
+                    self.setCurrentAppScreen(screen: .actionSelection)
                 }
                 
                 
             case .shareCredentialCustomResult(let success):
                 ShareEmailCredentialResultScreen(success: success) {
-                    withAnimation(.easeInOut(duration: 0.5)) {
-                        currentScreen = .actionSelection
-                    }
+                    self.setCurrentAppScreen(screen: .actionSelection)
                 }
                 
                 // MARK: DocSign
@@ -526,9 +473,7 @@ struct ContentView: View {
                 RestoreAccountStartScreen {
                     self.setCurrentAppScreen(screen: .restoreFlow)
                 } onBack: {
-                    withAnimation(.easeInOut(duration: 0.5)) {
-                        currentScreen = .registrationIntro
-                    }
+                    self.setCurrentAppScreen(screen: .registrationIntro)
                 }
             case .restoreFlow:
                 self_ios_sdk.RestoreFlow(account: viewModel.getAccount(), iCloudContainerIdentifier: iCloudIdentifier, onComplete: { result in
@@ -551,7 +496,7 @@ struct ContentView: View {
                 }
                 
             default:
-                Text("Current screen: \(currentScreen)")
+                Text("Current screen: \(viewModel.appScreen)")
                     .foregroundStyle(.black)
             }
             
@@ -1027,7 +972,8 @@ struct ContentView: View {
     
     private func setCurrentAppScreen(screen: AppScreen) {
         withAnimation(.easeInOut(duration: 0.5)) {
-            currentScreen = screen
+//            currentScreen = screen
+            self.viewModel.appScreen = screen
         }
     }
     
@@ -1064,13 +1010,13 @@ struct ContentView: View {
                 //viewModel.setupMessageListener()
                 // Don't show connection success toast since user is already connected
                 showConnectionSuccessToast = false
-                currentScreen = .actionSelection
+                self.setCurrentAppScreen(screen: .actionSelection)
             } else if isRegistered {
                 print("🎯 ContentView: Account registered but not connected to server, navigating to SERVER_CONNECTION")
-                currentScreen = .serverConnectionSelection
+                self.setCurrentAppScreen(screen: .serverConnectionSelection)
             } else {
                 print("🎯 ContentView: Account not registered, navigating to REGISTRATION_INTRO")
-                currentScreen = .registrationIntro
+                self.setCurrentAppScreen(screen: .registrationIntro)
             }
         }
     }
@@ -1090,11 +1036,7 @@ struct ContentView: View {
         case .verifyCredentials:
             handleVerifyCredentials()
         case .provideCredentials:
-            //            print("🎯 ContentView: Provide Credentials selected (not implemented yet)")
-            //            showToastMessage("Provide Credentials feature coming soon!")
-            withAnimation(.easeInOut(duration: 0.5)) {
-                currentScreen = .shareCredential
-            }
+            self.setCurrentAppScreen(screen: .shareCredential)
         case .signDocuments:
             self.setCurrentAppScreen(screen: .docSignStart)
             self.notifyServerForRequest(requestMessage: SERVER_REQUESTS.REQUEST_DOCUMENT_SIGNING) { messageId, error in
@@ -1106,9 +1048,7 @@ struct ContentView: View {
             }
             
         case .backup:
-            withAnimation(.easeInOut(duration: 0.5)) {
-                currentScreen = .backupStart
-            }
+            self.setCurrentAppScreen(screen: .backupStart)
         @unknown default:
             fatalError()
         }
@@ -1243,9 +1183,7 @@ struct ContentView: View {
     // MARK: - Verify Credentials
     
     private func handleVerifyCredentials() {
-        withAnimation(.easeInOut(duration: 0.5)) {
-            currentScreen = .verifyCredential
-        }
+        self.setCurrentAppScreen(screen: .verifyCredential)
     }
     
     //    private func sendCredentialResponse(account: Account, credentials: [Credential]) {
@@ -1288,7 +1226,7 @@ struct ContentView: View {
     private func sendVerificationResponse(account: Account, accepted: Bool) {
         print("📄 ContentView: Sending verification response back to server...")
         
-        guard let verificationRequest = currentVerificationRequest else {
+        guard let verificationRequest = viewModel.currentVerificationRequest else {
             print("📄 ContentView: ❌ Cannot send verification response - no stored verification request")
             return
         }
@@ -1449,7 +1387,7 @@ struct ContentView: View {
     private func clearAllAppState() {
         print("🧹 ContentView: Clearing all app-specific persistent state")
         // Reset to initial screen
-        currentScreen = .initialization
+        viewModel.appScreen = .initialization
     }
 }
 
