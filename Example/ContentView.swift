@@ -219,6 +219,7 @@ struct ContentView: View {
                                 print("Action failed: \(error)")
                             }
                         }
+                        .padding()
                     }
                 }
                 
