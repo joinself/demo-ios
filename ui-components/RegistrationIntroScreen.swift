@@ -92,7 +92,7 @@ public struct RegistrationIntroScreen: View {
                             Text("Registering...")
                         } else {
                             Text("Start")
-                                .foregroundStyle(Color(red: 0.31, green: 0.31, blue: 0.31))
+                                .foregroundStyle(!isOn ? Color(red: 0.31, green: 0.31, blue: 0.31) : .white)
                         }
                     }
                     .font(.system(size: 18, weight: .semibold))
@@ -166,7 +166,7 @@ struct CustomToggleStyle: ToggleStyle {
 }
 
 #Preview {
-    RegistrationIntroScreen(onNext: {
+    RegistrationIntroScreen(isProcessing: .constant(false), onNext: {
             
         }) {
             // restore
