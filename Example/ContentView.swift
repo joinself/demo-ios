@@ -396,23 +396,9 @@ struct ContentView: View {
                 // MARK: DocSign
             case .docSignStart:
                 BaseMessageView {
-                    DocSignStartScreen(
-                        onSignDocument: {
-    //                        viewModel.respondToVerificationRequest(verificationRequest: nil, status: .accepted, completion: { messageId, error in
-    //                            if error == nil {
-    //                                self.setCurrentAppScreen(screen: .docSignResult(success: true))
-    //                            } else {
-    //                                self.setCurrentAppScreen(screen: .docSignResult(success: false))
-    //                            }
-    //                        })
-                        },
-                        onRejectDocument: {
-    //                        viewModel.respondToVerificationRequest(verificationRequest: nil, status: .rejected, completion: { messageId, error in
-    //                            self.setCurrentAppScreen(screen: .actionSelection)
-    //                            self.showToastMessage("Document signing rejected!")
-    //                        })
-                        }
-                    )
+                    DocSignStartScreen {
+                        self.setCurrentAppScreen(screen: .actionSelection)
+                    }
                     if let currentVerificationRequest = viewModel.currentVerificationRequest {
                         self_ios_sdk.MessageView(account: viewModel.getAccount(), message: currentVerificationRequest) { result in
                             switch result {
@@ -428,6 +414,7 @@ struct ContentView: View {
                                 self.setCurrentAppScreen(screen: .docSignResult(success: false))
                             }
                         }
+                        .padding()
                     }
                 }
                 
