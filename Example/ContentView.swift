@@ -250,7 +250,6 @@ struct ContentView: View {
                 
             case .verifyEmailStart:
                 
-                
                 VerifyEmailStartScreen {
                     self.setCurrentAppScreen(screen: .emailFlow)
                     
@@ -261,7 +260,7 @@ struct ContentView: View {
             case .emailFlow:
                 self_ios_sdk.EmailFlow(account: viewModel.getAccount(), autoDismiss: true, onResult: { success in
                     print("Verify email finished = \(success)")
-                    self.setCurrentAppScreen(screen: .actionSelection)
+                    self.setCurrentAppScreen(screen: .verifyEmailResult(success: success))
                 })
                 
             case .verifyEmailResult (let success):
