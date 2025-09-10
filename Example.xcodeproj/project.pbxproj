@@ -13,6 +13,7 @@
 		6328245C2DFC2C4E00756B51 /* ui_components.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 632824552DFC2C4E00756B51 /* ui_components.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		634BAC352DCC5A840012429D /* self_ios_sdk in Frameworks */ = {isa = PBXBuildFile; productRef = 634BAC342DCC5A840012429D /* self_ios_sdk */; };
 		634BAC382DCC5BD10012429D /* OpenSSL in Frameworks */ = {isa = PBXBuildFile; productRef = 634BAC372DCC5BD10012429D /* OpenSSL */; };
+		63CDE6CA2E67EAAE008F4099 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 63CDE6C92E67EAAE008F4099 /* README.md */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -62,6 +63,7 @@
 		638FD74B2DE9C0A600CF59CC /* ExampleAppDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ExampleAppDebug.entitlements; sourceTree = "<group>"; };
 		639A7A0B2E0D42B100293D5B /* ExampleAppRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ExampleAppRelease.entitlements; sourceTree = "<group>"; };
 		63C124A62DEEF9990074DD42 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		63CDE6C92E67EAAE008F4099 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -123,6 +125,7 @@
 		634BAC192DCC53E90012429D = {
 			isa = PBXGroup;
 			children = (
+				63CDE6C92E67EAAE008F4099 /* README.md */,
 				636DDF482E2FD4F100CA0651 /* Configuration */,
 				6322DCF52E276F5B00B2094C /* SelfUI.xcodeproj */,
 				639A7A0B2E0D42B100293D5B /* ExampleAppRelease.entitlements */,
@@ -293,6 +296,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				63CDE6CA2E67EAAE008F4099 /* README.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -659,7 +663,7 @@
 			repositoryURL = "https://github.com/joinself/self-embedded-ios.git";
 			requirement = {
 				kind = exactVersion;
-				version = "0.128.0-20";
+				version = "0.128.0-25";
 			};
 		};
 		634BAC362DCC5BD10012429D /* XCRemoteSwiftPackageReference "OpenSSL" */ = {

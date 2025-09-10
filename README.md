@@ -43,7 +43,7 @@ cd ios/Example/
 open Example.xcodeproj
 ```
 
-### Backup flơ
+### Backup flow
  Self sdk will automatic backup your pds. You just need to configure your iCloud capability and pass the iCloud identifier to the BackupFlow view.
  ```
    self_ios_sdk.BackupFlow(account: viewModel.getAccount(), iCloudContainerIdentifier: "iCloud.DevApp", onComplete: { result in
