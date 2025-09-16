@@ -37,6 +37,8 @@ final class MainViewModel: ObservableObject, AccountDelegate {
         print("onAcknowledgement: \(id)")
     }
     
+    private var currentServerRequest: String?
+    
     func onMessage(message: any self_ios_sdk.Message) {
         print("onMessage: \(message)")
         switch message {
@@ -139,107 +141,6 @@ final class MainViewModel: ObservableObject, AccountDelegate {
         return account
     }
     
-    // MARK: - Message Handling
-    
-    /*
-    func setupMessageListener() {
-        account.setOnInfoRequest { (key: String) in
-            print("setOnInfoRequest: \(key)")
-        }
-
-        account.setOnInfoResponse { (address: String, data: [String: Any]) in
-            print("setOnInfoResponse: \(address)/\(data)")
-        }
-
-        account.setOnStatusListener { status in
-            print("init account status:\(status)")
-            // reload credentials view
-            Task { @MainActor in
-                self.accountRegistered = self.account.registered()
-            }
-            self.reloadCredentialItems()
-        }
-
-        account.setOnRelayConnectListener {
-            print("onRelayConnect connected.")
-        }
-
-        account.setOnMessageListener { message in
-            print("Message received: \(message.id())")
-            switch message {
-            case is ChatMessage:
-                let chatMessage = message as! ChatMessage
-                //self.handleIncomingChatMessage(chatMessage)
-
-            case is CredentialMessage:
-                let credentialMessage = message as! CredentialMessage
-                self.handleIncomingCredentialMessage(credentialMessage)
-            case is Receipt:
-                let receipt = message as! Receipt
-
-            default:
-                print("🎯 ContentView: ❓ Unknown message type: \(type(of: message))")
-                break
-            }
-        }
-
-        account.setOnRequestListener { message in
-            print("setOnRequestListener: \(message)")
-            switch message {
-            case is CredentialRequest:
-                let credentialRequest = message as! CredentialRequest
-                self.handleCredentialRequest(credentialRequest: credentialRequest)
-
-            case is VerificationRequest:
-                let verificationRequest = message as! VerificationRequest
-                self.handleVerificationRequest(verificationRequest: verificationRequest)
-
-            case is SigningRequest:
-                let signingRequest = message as! SigningRequest
-                print("Received signing request: \(signingRequest.id())")
-                self.handleSigningRequest(signingRequest: signingRequest)
-
-            default:
-                print("🎯 ContentView: ❓ Unknown message type: \(type(of: message))")
-                break
-            }
-        }
-
-        account.setOnResponseListener { message in
-            print("setOnResponseListener: \(message)")
-            switch message {
-            case is CredentialResponse:
-                let response = message as! CredentialResponse
-
-            default:
-                print("🎯 ContentView: ❓ Unknown message type: \(type(of: message))")
-                break;
-            }
-        }
-        
-        /*guard let account = initializedAccount else {
-            print("🎯 ContentView: ⚠️ Cannot setup message listener - no account available")
-            return
-        }
-        
-        print("🎯 ContentView: 📚 Setting up message listener...")
-        
-        // Set up request listener for credential and verification requests
-        account.setOnRequestListener { request in
-            Task { @MainActor in
-                handleIncomingRequest(request)
-            }
-        }
-        
-        // Also set up message listener for other message types
-        account.setOnMessageListener { message in
-            Task { @MainActor in
-                handleIncomingMessage(message)
-            }
-        }*/
-        
-        print("🎯 MainViewModel: ✅ Message listeners configured successfully")
-    } */
     
     // transform credential into credential item to perform identifiable to display inside a List
     @Published var credentialItems: [CredentialItem] = []
@@ -341,19 +242,38 @@ final class MainViewModel: ObservableObject, AccountDelegate {
         currentCredentialRequest = credentialRequest
         
         print("CredentialRequest types: \(credentialRequest.types())")
-        let emailCredential = credentialRequest.types().contains(CredentialType.Email) ?? false
-        let documentCredential = credentialRequest.types().contains(CredentialType.Passport) ?? false
-        let customCredential = credentialRequest.types().contains("CustomerCredential") ?? false
-
-        if emailCredential {
-            self.notifyAppScreen(screen: .shareEmailStart)
-        } else if documentCredential {
-            self.notifyAppScreen(screen: .shareDocumentStart)
-        } else if customCredential {
-            self.notifyAppScreen(screen: .shareCredentialCustomStart)
-        }else {
-            self.notifyAppScreen(screen: .authStart)
+        let emailCredential = credentialRequest.types().contains(CredentialType.Email)
+        let documentCredential = credentialRequest.types().contains("DocumentPresentation")
+        let customCredential = credentialRequest.types().contains("CustomerCredential")
+        
+        if let currentServerRequest = currentServerRequest {
+            switch self.currentServerRequest {
+            case SERVER_REQUESTS.REQUEST_CREDENTIAL_AUTH:
+                self.notifyAppScreen(screen: .authStart)
+            
+            case SERVER_REQUESTS.REQUEST_CREDENTIAL_EMAIL:
+                self.notifyAppScreen(screen: .shareEmailStart)
+                
+            case SERVER_REQUESTS.REQUEST_CREDENTIAL_DOCUMENT:
+                self.notifyAppScreen(screen: .shareDocumentStart)
+                
+            case SERVER_REQUESTS.REQUEST_CREDENTIAL_CUSTOM:
+                self.notifyAppScreen(screen: .shareCredentialCustomStart)
+            default:
+                print("🚨 MainViewModel: Unsupported credential request type")
+            }
         }
+        
+        
+//        if emailCredential {
+//            self.notifyAppScreen(screen: .shareEmailStart)
+//        } else if documentCredential {
+//            self.notifyAppScreen(screen: .shareDocumentStart)
+//        } else if customCredential {
+//            self.notifyAppScreen(screen: .shareCredentialCustomStart)
+//        }else {
+//            self.notifyAppScreen(screen: .authStart)
+//        }
     }
     
     private func notifyAppScreen(screen: AppScreen) {
@@ -482,6 +402,7 @@ final class MainViewModel: ObservableObject, AccountDelegate {
     }
     
     func notifyServerForRequest(message: String, completion: @escaping((String, Error?) -> Void)) {
+        self.currentServerRequest = message
         guard let serverAddress = serverAddress else {
             print("serverAddress is nil.")
             return
