@@ -311,17 +311,15 @@ struct ContentView: View {
             case .shareCredential:
                 ProvideCredentialSelectionScreen { credentialActionType in
                     if credentialActionType == .emailAddress {
-                        self.sendEmailCredentialRequest { success in
-                            if success {
-                                self.setCurrentAppScreen(screen: .shareEmailStart)
-                            }
-                        }
+                        self.sendEmailCredentialRequest()
                     } else if credentialActionType == .identityDocument {
                         self.sendIDNumberCredentialRequest()
                     } else if credentialActionType == .customCredential {
                         self.requestCredentialCustomRequest()
                     }
                 } onBack: {
+                    viewModel.currentCredentialRequest = nil
+                    viewModel.currentVerificationRequest = nil
                     self.setCurrentAppScreen(screen: .actionSelection)
                 }
             case .shareEmailStart:
