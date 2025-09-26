@@ -183,39 +183,8 @@ final class MainViewModel: ObservableObject, AccountDelegate {
     }
     
     func handleSigningRequest(signingRequest: SigningRequest) {
-        
-    }
-    
-//    func respondToSigningRequest(signingRequest: SigningRequest, status: ResponseStatus, credentials: [Credential]) {
-//        print("respondToSigningRequest: \(signingRequest.id()) -> status: \(status)")
-//        
-//        let signingResponse = SigningResponse.Builder()
-//            .withRequestId(signingRequest.id())
-//            .toIdentifier(signingRequest.toIdentifier())
-//            .fromIdentifier(signingRequest.fromIdentifier())
-//            .withStatus(status)
-//            .withCredentials(credentials)
-//            .build()
-//
-//        self.sendKMPMessage(message: signingResponse) { messageId, error in
-//            print("sent signing response with id: \(messageId) error: \(error)")
-//        }
-//    }
-    
-    private func handleIncomingMessage(_ message: ChatMessage) {
-        print("🎯 ContentView: 📥 Received incoming message of type: \(type(of: message))")
-//        let messageContent = chatMessage.message()
-//        let fromAddress = chatMessage.fromIdentifier()
-//        print("🎯 ContentView: 💬 Chat message from
-//              
-//        if let chatMessage = message as? ChatMessage {
-//            handleIncomingChatMessage(chatMessage)
-//        } else if let credentialMessage = message as? CredentialMessage {
-//            self.handleIncomingCredentialMessage(credentialMessage)
-//            
-//        } else {
-//            print("🎯 ContentView: ❓ Unknown message type: \(type(of: message))")
-//        }
+        // TODO: Handle signing request
+        print("Handle signing request")
     }
     
     private func handleIncomingCredentialMessage(_ credentialMessage: CredentialMessage) {
@@ -223,7 +192,7 @@ final class MainViewModel: ObservableObject, AccountDelegate {
         let fromAddress = credentialMessage.fromAddress()
         
         print("🎯 ContentView: 💬 Credential message from \(fromAddress): '\(messageContent)'")
-//         Chat messages are informational, no specific action needed
+        // Chat messages are informational, no specific action needed
         self.notifyAppScreen(screen: .getCustomCredentialResult(success: true))
     }
     
@@ -263,17 +232,6 @@ final class MainViewModel: ObservableObject, AccountDelegate {
                 print("🚨 MainViewModel: Unsupported credential request type")
             }
         }
-        
-        
-//        if emailCredential {
-//            self.notifyAppScreen(screen: .shareEmailStart)
-//        } else if documentCredential {
-//            self.notifyAppScreen(screen: .shareDocumentStart)
-//        } else if customCredential {
-//            self.notifyAppScreen(screen: .shareCredentialCustomStart)
-//        }else {
-//            self.notifyAppScreen(screen: .authStart)
-//        }
     }
     
     private func notifyAppScreen(screen: AppScreen) {
