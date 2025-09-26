@@ -13,11 +13,6 @@
 		6328245C2DFC2C4E00756B51 /* ui_components.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 632824552DFC2C4E00756B51 /* ui_components.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		634BAC352DCC5A840012429D /* self_ios_sdk in Frameworks */ = {isa = PBXBuildFile; productRef = 634BAC342DCC5A840012429D /* self_ios_sdk */; };
 		634BAC382DCC5BD10012429D /* OpenSSL in Frameworks */ = {isa = PBXBuildFile; productRef = 634BAC372DCC5BD10012429D /* OpenSSL */; };
-		63937E582E82980500776F54 /* Appfile in Resources */ = {isa = PBXBuildFile; fileRef = 63937E522E82980500776F54 /* Appfile */; };
-		63937E592E82980500776F54 /* report.xml in Resources */ = {isa = PBXBuildFile; fileRef = 63937E562E82980500776F54 /* report.xml */; };
-		63937E5A2E82980500776F54 /* Fastfile in Resources */ = {isa = PBXBuildFile; fileRef = 63937E532E82980500776F54 /* Fastfile */; };
-		63937E5B2E82980500776F54 /* Matchfile in Resources */ = {isa = PBXBuildFile; fileRef = 63937E542E82980500776F54 /* Matchfile */; };
-		63937E5C2E82980500776F54 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 63937E552E82980500776F54 /* README.md */; };
 		63CDE6CA2E67EAAE008F4099 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 63CDE6C92E67EAAE008F4099 /* README.md */; };
 /* End PBXBuildFile section */
 
@@ -66,11 +61,6 @@
 		634BAC222DCC53E90012429D /* ExampleApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ExampleApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		636DDF492E2FD51400CA0651 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 		638FD74B2DE9C0A600CF59CC /* ExampleAppDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ExampleAppDebug.entitlements; sourceTree = "<group>"; };
-		63937E522E82980500776F54 /* Appfile */ = {isa = PBXFileReference; lastKnownFileType = text; path = Appfile; sourceTree = "<group>"; };
-		63937E532E82980500776F54 /* Fastfile */ = {isa = PBXFileReference; lastKnownFileType = text; path = Fastfile; sourceTree = "<group>"; };
-		63937E542E82980500776F54 /* Matchfile */ = {isa = PBXFileReference; lastKnownFileType = text; path = Matchfile; sourceTree = "<group>"; };
-		63937E552E82980500776F54 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		63937E562E82980500776F54 /* report.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = report.xml; sourceTree = "<group>"; };
 		639A7A0B2E0D42B100293D5B /* ExampleAppRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ExampleAppRelease.entitlements; sourceTree = "<group>"; };
 		63C124A62DEEF9990074DD42 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		63CDE6C92E67EAAE008F4099 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -135,7 +125,6 @@
 		634BAC192DCC53E90012429D = {
 			isa = PBXGroup;
 			children = (
-				63937E572E82980500776F54 /* fastlane */,
 				63CDE6C92E67EAAE008F4099 /* README.md */,
 				636DDF482E2FD4F100CA0651 /* Configuration */,
 				6322DCF52E276F5B00B2094C /* SelfUI.xcodeproj */,
@@ -171,18 +160,6 @@
 				636DDF492E2FD51400CA0651 /* Config.xcconfig */,
 			);
 			path = Configuration;
-			sourceTree = "<group>";
-		};
-		63937E572E82980500776F54 /* fastlane */ = {
-			isa = PBXGroup;
-			children = (
-				63937E522E82980500776F54 /* Appfile */,
-				63937E532E82980500776F54 /* Fastfile */,
-				63937E542E82980500776F54 /* Matchfile */,
-				63937E552E82980500776F54 /* README.md */,
-				63937E562E82980500776F54 /* report.xml */,
-			);
-			path = fastlane;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -320,11 +297,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				63CDE6CA2E67EAAE008F4099 /* README.md in Resources */,
-				63937E582E82980500776F54 /* Appfile in Resources */,
-				63937E592E82980500776F54 /* report.xml in Resources */,
-				63937E5A2E82980500776F54 /* Fastfile in Resources */,
-				63937E5B2E82980500776F54 /* Matchfile in Resources */,
-				63937E5C2E82980500776F54 /* README.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
