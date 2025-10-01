@@ -1,5 +1,5 @@
 storage_mode("git")
-git_url("git@github.com:joinself/ios-example-app-certificates.git")
+git_url("git@github.com:joinself/appstore-certificates.git")
 git_branch("main")
 username("ops@joinself.com")
 app_identifier(["com.joinself.app.demo"])
