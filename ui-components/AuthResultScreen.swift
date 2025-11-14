@@ -7,12 +7,14 @@ import SwiftUI
 
 public struct AuthResultScreen: View {
     @State private var showSuccessToast = true
+    let errorString: String?
     let success: Bool
     let onContinue: () -> Void
     
-    public init(showSuccessToast: Bool = true, success: Bool, onContinue: @escaping () -> Void) {
+    public init(showSuccessToast: Bool = true, success: Bool, errorString: String? = nil, onContinue: @escaping () -> Void) {
         self.showSuccessToast = showSuccessToast
         self.success = success
+        self.errorString = errorString
         self.onContinue = onContinue
     }
     
@@ -59,7 +61,8 @@ public struct AuthResultScreen: View {
                         if success {
                             CardView(icon: "checkmark.circle.fill", iconColor: .green, borderColor: .green, title: "Verification Complete", description: "You will authenticate to the server using your biometric credentials. Look directly at the camera and follow the on-screen instructions.")
                         } else {
-                            CardView(icon: "exclamationmark.circle", iconColor: .primaryError, borderColor: .primaryError, title: "Verification Complete", description: "You will authenticate to the server using your biometric credentials. Look directly at the camera and follow the on-screen instructions.")
+                            let errorString = self.errorString ?? ""
+                            CardView(icon: "exclamationmark.circle", iconColor: .primaryError, borderColor: .primaryError, title: "Verification Complete", description: "Your biometric check failed. Error: \(errorString)")
                         }
                     }
                     .padding(.bottom, 20) // Space above button
