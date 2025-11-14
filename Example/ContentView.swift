@@ -43,7 +43,7 @@ enum AppScreen: Equatable {
     case shareCredentialCustomStart
     case shareCredentialCustomResult(success: Bool)
     case authStart
-    case authResult(success: Bool)
+    case authResult(success: Bool, errorString: String?)
     case docSignStart
     case docSignResult(success: Bool)
     case backupStart
@@ -210,10 +210,9 @@ struct ContentView: View {
                             switch result {
                             case .success (let status):
                                 if status == MessageStatus.accepted.rawValue {
-                                    self.setCurrentAppScreen(screen: .authResult(success: true))
+                                    self.setCurrentAppScreen(screen: .authResult(success: true, errorString: nil))
                                 } else if status == MessageStatus.rejected.rawValue {
-                                    self.setCurrentAppScreen(screen: .actionSelection)
-                                    self.showToastMessage("Authentication rejected!")
+                                    self.setCurrentAppScreen(screen: .authResult(success: false, errorString: "User rejected the credential request."))
                                 }
                             case .failure(let error):
                                 print("Action failed: \(error)")
@@ -223,14 +222,14 @@ struct ContentView: View {
                     }
                 }
                 
-            case .authResult(let success):
-                AuthResultScreen(success: success,
+            case .authResult(let result):
+                
+                AuthResultScreen(success: result.success, errorString: result.errorString,
                                  onContinue: {
                     // Return to action selection (don't show connection success toast)
                     showConnectionSuccessToast = false
                     self.setCurrentAppScreen(screen: .actionSelection)
-                }
-                )
+                })
                 
             case .verifyCredential:
                 VerifyCredentialSelectionScreen { credentialActionType in
@@ -712,32 +711,6 @@ struct ContentView: View {
         }
     }
     
-    private func startAuthenticationLivenessCheck() {
-        print("🔐 ContentView: Starting authentication liveness check with SelfUI")
-        
-        // Use SelfUI to perform liveness check
-        //        SelfSDK.showLiveness(account: viewModel.account) { data, credentials, error in
-        //            DispatchQueue.main.async {
-        //                if let error = error {
-        //                    print("🔐 ContentView: ❌ Authentication liveness check failed: \(error)")
-        //                    showToastMessage("Authentication failed. Please try again.")
-        //                    // Stay on current screen to allow retry
-        //                } else {
-        //                    print("🔐 ContentView: ✅ Authentication liveness check successful")
-        //                    print("🔐 ContentView: Received \(credentials.count) credentials")
-        //
-        //                    // Send credential response back to server
-        ////                    sendCredentialResponse(account: account, credentials: credentials)
-        //                    viewModel.responseToCredentialRequest(credentialRequest: nil, responseStatus: .accepted) { messsageId, error in
-        //                        let success = error == nil
-        //                        // Navigate to result screen
-        //                        self.setCurrentAppScreen(screen: .authResult(success: success))
-        //                    }
-        //                }
-        //            }
-        //        }
-    }
-    
     // MARK: - Verify Credentials
     
     private func handleVerifyCredentials() {
@@ -787,3 +760,4 @@ struct ContentView: View {
 //#Preview {
 //    ContentView()
 //}
+
