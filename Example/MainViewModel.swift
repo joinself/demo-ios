@@ -117,14 +117,6 @@ final class MainViewModel: ObservableObject, AccountDelegate {
         // Initialize SDK
         SelfSDK.initialize()
         
-        account = Account.Builder()
-            .withEnvironment(Environment.production)
-            .withSandbox(true) // if true -> production
-            .withGroupId("") // ex: com.example.app.your_app_group
-            .withDelegate(delegate: self)
-            .withStoragePath(FileManager.storagePath)
-            .build()
-        
         isServerConnected = self.getServerConnected()
         connectedServerAddress = self.getServerAddress()
         serverAddress = connectedServerAddress
@@ -132,6 +124,17 @@ final class MainViewModel: ObservableObject, AccountDelegate {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             self.isInitialized = true
         }
+    }
+    
+    func setupAccount(withApplicationAddress: String) {
+        account = Account.Builder()
+            .withEnvironment(Environment.production)
+            .withSandbox(true) // if true -> production
+            .withGroupId("") // ex: com.example.app.your_app_group
+            .withDelegate(delegate: self)
+            .withStoragePath(FileManager.storagePath)
+            .withApplicationAddress(withApplicationAddress)
+            .build()
     }
     
     func getAccount() -> Account {
