@@ -21,6 +21,7 @@ import SelfUI
 enum AppScreen: Equatable {
     case initialization
     case registrationIntro
+    case applicationAddress
     case registerAccountView
     case serverConnectionSelection
     case qrCodeReader
@@ -85,10 +86,19 @@ struct ContentView: View {
                 })
             case .registrationIntro:
                 RegistrationIntroScreen {
-                    self.setCurrentAppScreen(screen: .registerAccountView)
+                    self.setCurrentAppScreen(screen: .applicationAddress)
                 } onRestore: {
                     self.setCurrentAppScreen(screen: .restoreStart)
                 }
+                
+            case .applicationAddress:
+                ApplicationAddressView { address in
+                    viewModel.setupAccount(withApplicationAddress: address)
+                    self.setCurrentAppScreen(screen: .registerAccountView)
+                } onBack: {
+                    self.setCurrentAppScreen(screen: .registrationIntro)
+                }
+
                 
             case .registerAccountView:
                 RegistrationFlow(account: viewModel.getAccount()) { result in
