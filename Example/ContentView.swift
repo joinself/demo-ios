@@ -70,6 +70,7 @@ struct ContentView: View {
     @State private var toastMessage: String = ""
     
     @State private var showVerifyDocument: Bool = false
+    @State private var isRestoring: Bool = false
     
     var body: some View {
         ZStack {
@@ -88,13 +89,20 @@ struct ContentView: View {
                 RegistrationIntroScreen {
                     self.setCurrentAppScreen(screen: .applicationAddress)
                 } onRestore: {
-                    self.setCurrentAppScreen(screen: .restoreStart)
+                    self.isRestoring = true
+                    self.setCurrentAppScreen(screen: .applicationAddress)
+                    //self.setCurrentAppScreen(screen: .restoreStart)
                 }
                 
             case .applicationAddress:
                 ApplicationAddressView { address in
                     viewModel.setupAccount(withApplicationAddress: address)
-                    self.setCurrentAppScreen(screen: .registerAccountView)
+                    if isRestoring {
+                        self.setCurrentAppScreen(screen: .restoreStart)
+                    } else {
+                        self.setCurrentAppScreen(screen: .registerAccountView)
+                    }
+                    
                 } onBack: {
                     self.setCurrentAppScreen(screen: .registrationIntro)
                 }
