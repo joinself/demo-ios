@@ -80,14 +80,16 @@ This section guides you through the initial steps to get started with the Self D
 
 1.  **Initialize the SDK:**  
    Upon first launch, the application will typically initialize the SelfSDK in the background. This process sets up the necessary components for the app to interact with the Self network.
+2. **Register Application Address**
+      Once the SDK is initialized, you need to set an application address. 
 
-2.  **Register an Account:**  
-   Once the SDK is initialized, if you are a new user, you will be prompted to register an account or restore a backup file.
+3.  **Register an Account:**  
+   Once the application address is set, if you are a new user, you will be prompted to register an account or restore a backup file.
 
-3.  **Connect to the Server:**  
+4.  **Connect to the Server:**  
    After successful registration (or if you are a returning user who has already registered), the app will attempt to connect to the above server.
 
-4.  **Select an Option to Start:**  
+5.  **Select an Option to Start:**  
    Once connected, you will typically land on a main screen.  
    Here, you'll find various options to explore the app's features:    
 
