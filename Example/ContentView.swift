@@ -83,15 +83,27 @@ struct ContentView: View {
                 
             case .initialization:
                 InitializeSDKScreen(isInitialized: $viewModel.isInitialized, onInitializationComplete: {
-                    determineNextScreen()
+                    if let address = viewModel.getApplicationAddress() {
+                        viewModel.setupAccount(withApplicationAddress: address) {
+                            self.determineNextScreen()
+                        }
+                    } else {
+                        self.setCurrentAppScreen(screen: .applicationAddress)
+                    }
                 })
             case .registrationIntro:
                 RegistrationIntroScreen {
-                    self.setCurrentAppScreen(screen: .applicationAddress)
+                    if let address = viewModel.getApplicationAddress() {
+                        viewModel.setupAccount(withApplicationAddress: address) {
+                            self.determineNextScreen()
+                        }
+
+                    } else {
+                        self.setCurrentAppScreen(screen: .applicationAddress)
+                    }
                 } onRestore: {
                     self.isRestoring = true
                     self.setCurrentAppScreen(screen: .applicationAddress)
-                    //self.setCurrentAppScreen(screen: .restoreStart)
                 }
                 
             case .applicationAddress:
@@ -547,8 +559,10 @@ struct ContentView: View {
     }
     
     private func setCurrentAppScreen(screen: AppScreen) {
-        withAnimation(.easeInOut(duration: 0.5)) {
-            self.viewModel.appScreen = screen
+        DispatchQueue.main.async {
+            withAnimation(.easeInOut(duration: 0.5)) {
+                self.viewModel.appScreen = screen
+            }
         }
     }
     

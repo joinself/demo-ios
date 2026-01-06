@@ -26,11 +26,16 @@ struct SERVER_REQUESTS {
 struct UserDefaultKeys {
     static let isServerConnected = "isServerConnected"
     static let connectedServerAddress = "connectedServerAddress"
+    static let applicationAddress = "applicationAddress"
 }
 
 final class MainViewModel: ObservableObject, AccountDelegate {
+    private var onConnectHandler: (() -> Void)? = nil
+    
     func onConnect() {
         print("onConnect")
+        onConnectHandler?()
+        onConnectHandler = nil
     }
     
     func onAcknowledgement(id: String) {
@@ -126,7 +131,7 @@ final class MainViewModel: ObservableObject, AccountDelegate {
         }
     }
     
-    func setupAccount(withApplicationAddress: String) {
+    func setupAccount(withApplicationAddress: String, onConnect: (() -> Void)? = nil) {
         account = Account.Builder()
             .withEnvironment(Environment.production)
             .withSandbox(true) // if true -> production
@@ -135,6 +140,10 @@ final class MainViewModel: ObservableObject, AccountDelegate {
             .withStoragePath(FileManager.storagePath)
             .withApplicationAddress(withApplicationAddress)
             .build()
+        
+        // save application address for second launch
+        self.saveApplicationAddress(address: withApplicationAddress)
+        self.onConnectHandler = onConnect
     }
     
     func getAccount() -> Account {
@@ -445,6 +454,14 @@ final class MainViewModel: ObservableObject, AccountDelegate {
     
     func getServerAddress() -> String? {
         return UserDefaults.standard.string(forKey: UserDefaultKeys.connectedServerAddress)
+    }
+    
+    func saveApplicationAddress(address: String) {
+        UserDefaults.standard.set(address, forKey: UserDefaultKeys.applicationAddress)
+    }
+    
+    func getApplicationAddress() -> String? {
+        return UserDefaults.standard.string(forKey: UserDefaultKeys.applicationAddress)
     }
     
     func resetUserDefaults() {
