@@ -365,7 +365,7 @@ struct ContentView: View {
                                 self.setCurrentAppScreen(screen: .shareEmailResult(success: true))
                             } else if status == MessageStatus.rejected.rawValue {
                                 self.setCurrentAppScreen(screen: .actionSelection)
-                                self.showToastMessage("Share email credential rejected!")
+//                                self.showToastMessage("Share email credential rejected!")
                             }
                         case .failure(let error):
                             print("Action failed: \(error)")
@@ -425,7 +425,7 @@ struct ContentView: View {
                                 self.setCurrentAppScreen(screen: .shareCredentialCustomResult(success: true))
                             } else if status == MessageStatus.rejected.rawValue {
                                 self.setCurrentAppScreen(screen: .actionSelection)
-                                self.showToastMessage("Share custom credentials rejected!")
+//                                self.showToastMessage("Share custom credentials rejected!")
                             }
                         case .failure(let error):
                             print("Action failed: \(error)")
@@ -652,7 +652,7 @@ struct ContentView: View {
                 if let error = error {
                     print("🔐 ContentView: ❌ Authentication request send failed: \(error)")
                     showServerRequestOverlay = false
-                    showToastMessage("Failed to send authentication request: \(error.localizedDescription)")
+//                    showToastMessage("Failed to send authentication request: \(error.localizedDescription)")
                 } else {
                     print("🔐 ContentView: ✅ Authentication request sent successfully with ID: \(messageId)")
                     // Message sent successfully, now waiting for server response via message listener
@@ -668,7 +668,7 @@ struct ContentView: View {
                 if let error = error {
                     print("🔐 ContentView: ❌ Authentication request send failed: \(error)")
                     showServerRequestOverlay = false
-                    showToastMessage("Failed to send authentication request: \(error.localizedDescription)")
+//                    showToastMessage("Failed to send authentication request: \(error.localizedDescription)")
                 } else {
                     print("🔐 ContentView: ✅ Authentication request sent successfully with ID: \(messageId)")
                     // Message sent successfully, now waiting for server response via message listener
@@ -684,7 +684,7 @@ struct ContentView: View {
                 if let error = error {
                     print("🔐 ContentView: ❌ Email credential request send failed: \(error)")
                     showServerRequestOverlay = false
-                    showToastMessage("Failed to send email credential request: \(error.localizedDescription)")
+//                    showToastMessage("Failed to send email credential request: \(error.localizedDescription)")
                     completion?(false)
                 } else {
                     print("🔐 ContentView: ✅ Email credential request sent successfully with ID: \(messageId)")
@@ -702,7 +702,7 @@ struct ContentView: View {
                 if let error = error {
                     print("🔐 ContentView: ❌ Get custom credentials request send failed: \(error)")
                     showServerRequestOverlay = false
-                    showToastMessage("Failed to send custom credentials request: \(error.localizedDescription)")
+//                    showToastMessage("Failed to send custom credentials request: \(error.localizedDescription)")
                 } else {
                     print("🔐 ContentView: ✅ custom credentials request sent successfully with ID: \(messageId)")
                     // Message sent successfully, now waiting for server response via message listener
@@ -718,7 +718,7 @@ struct ContentView: View {
                 if let error = error {
                     print("🔐 ContentView: ❌ Get custom credentials request send failed: \(error)")
                     showServerRequestOverlay = false
-                    showToastMessage("Failed to send custom credentials request: \(error.localizedDescription)")
+//                    showToastMessage("Failed to send custom credentials request: \(error.localizedDescription)")
                 } else {
                     print("🔐 ContentView: ✅ custom credentials request sent successfully with ID: \(messageId)")
                     // Message sent successfully, now waiting for server response via message listener

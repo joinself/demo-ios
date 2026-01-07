@@ -85,39 +85,6 @@ public struct AuthResultScreen: View {
                 .background(Color.white)
             }
             .background(Color.white)
-            
-            // Success Toast Notification
-            if showSuccessToast {
-                VStack {
-                    Spacer()
-                    
-                    HStack(spacing: 12) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.system(size: 20))
-                            .foregroundColor(.green)
-                        
-                        Text("Authentication response sent!")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.white)
-                        
-                        Spacer()
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 16)
-                    .background(Color.black.opacity(0.8))
-                    .cornerRadius(12)
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 80) // Position above Continue button
-                }
-                .onAppear {
-                    // Auto-hide success toast after 4 seconds
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
-                        withAnimation(.easeOut(duration: 0.5)) {
-                            showSuccessToast = false
-                        }
-                    }
-                }
-            }
         }
     }
 }
