@@ -23,5 +23,6 @@ jobs:
         run: |
           . ${GITHUB_WORKSPACE}/.ci/env
 
+          echo "Calling remote workflow: joinself/demo-ios-gha - CI (${WORKFLOW_ID})"
           gh workflow run CI -R joinself/demo-ios-gha -r main -f id=${WORKFLOW_ID} -f git-ref=${CI_REF_NAME}
           ${CI_SCRIPTS}/workflow-wait joinself/demo-ios-gha ${WORKFLOW_ID}
