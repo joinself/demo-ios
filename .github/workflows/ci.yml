@@ -29,5 +29,5 @@ jobs:
           WORKFLOW_ID: ${{ github.run_id }}${{github.run_attempt}}
         run: |
           echo "Calling remote workflow: joinself/demo-ios-gha - CI (${WORKFLOW_ID})"
-          gh workflow run CI -R joinself/demo-ios-gha -r main -f id=${WORKFLOW_ID} -f git-ref=${GITHUB_REF_NAME}
+          gh workflow run CI -R joinself/demo-ios-gha -r main -f id=${WORKFLOW_ID} -f git-ref=${GITHUB_HEAD_REF:-$GITHUB_REF_NAME}
           ${SCRIPTS}/workflow-wait joinself/demo-ios-gha ${WORKFLOW_ID}
